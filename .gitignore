@@ -30,3 +30,7 @@
 
 # Debug files
 *.dSYM/
+*.o
+*.d
+*.hex
+*.elf
