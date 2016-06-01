@@ -28,12 +28,12 @@ void addRandomDrip() {
     }
 }
 void advanceRestDrips() {
-    for (unsigned int d=0; d < (dripCount); d++) {
-        unsigned int dripStart = dripStarts[d % DRIP_LIMIT];
+    for (unsigned int d=0; d < min(dripCount, DRIP_LIMIT); d++) {
+        unsigned int dripStart = dripStarts[d];
         if (dripStart < millis() - float(REST_DRIP_TRIP_MS)) continue;
-        unsigned int dripColor = dripColors[d % DRIP_LIMIT];
+        unsigned int dripColor = dripColors[d];
 
-        drawDrip(d % DRIP_LIMIT, dripStart, dripColor);
+        drawDrip(d, dripStart, dripColor);
     }
 
     leds.show();

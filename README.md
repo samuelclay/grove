@@ -50,3 +50,9 @@ Mailing list: grove-electronics@googlegroups.com
 - July 27th: Final boards return from printer, soldering begins
 - August 20th: Installation begins on playa
 - August 28th: Burning Man begins
+
+# Useful links:
+
+Grove proposal: https://docs.google.com/presentation/d/1Oe51Et6uq_moFoTw9EoB07Vlh8WwSTc89PW6PQpZ1io/edit#slide=id.g12e5fa7d1f_0_1
+Grove budget: https://docs.google.com/spreadsheets/d/1ltcCgIae5ANJpvHL2A5ckWDxvADcpXeD_jZIF5hPCvg/edit#gid=0
+Prototypes and earlier installation: https://cambridge.nuvustudio.com/studios/grove#tab-proposal-url
