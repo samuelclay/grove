@@ -1,63 +1,50 @@
-Teensy 3.X Project Template
-===========================
+Grove
+=====
 
-Purpose
--------
+# Boards
 
-An easy starting point for a Teensy 3.X project which might not fit inside the
-arduino build environment.
+1) Main board - Teensy shield
+    - 4 x 3 pins for 144/m 5m strips on trunk
+    - 4 x 5 pins (power + rgb) for dispatcher board
+    - 3 pins (power + data) for breathing sensor
+    - Power switch
+    - PTC fuse + zener diode
+    - 4 pins for buck converter, 12V -> 5V
+    
+2) Sensor board
+    - 3 pins from mainboard (power, data)
+    - Proximity sensor (SI1143x)
+    - IR motion detector
+    - "breathing" sensor
+    - active LEDs
 
+3) Dispatcher board
+    - 4 x 5 pins input (power + rgb)
+    - 4 PicoBucks (six pins in, six pins out)
+    - 16 x 6 pin RGB LEDs (r±, g±, b±)
 
-Reasons to Use
---------------
+# Concerns
 
-- You need to modify the teensy core
-- You don't love Java IDE's
-- You love Make
-- Because
+1) Power
+    - 12V deep cycle marine batteries
+    - Charging circuit
+    - Solar array
+    - Delivering 12V to each tree (voltage drop)
+2) Firmware
+    - Performance over time
+    - Running 4x trunks vs 1 trunk 4 times
+3) Lighting
+    - Soldering high current LEDs
+    - 144/m 5m vs splicing power
 
+# Timeline
 
-Setup
------
-
-Install the Teensy udev rule: `sudo cp tools/49-teensy.rules /etc/udev/rules.d/`
-
-Then unplug your Teensy and plug it back in.
-
-
-Using
------
-
-1. Put your code in `src/main.cpp`
-2. Put any libraries you need in `libraries`
-3. Set the TEENSY variable in `Makefile` according to your teensy version
-4. Build your code ```make```
-5. Upload your code ```make upload```
-
-
-Make Targets
-------------
-
-- `make` alias for `make hex`
-- `make build` compiles everything and produces a .elf
-- `make hex` converts the elf to an intel hex file
-- `make post_compile` opens the launcher with the correct file
-- `make upload` uploads the hex file to a teensy board
-- `make reboot` reboots the teensy
-
-
-Where everything came from
---------------------------
-
-- The `teensy3` sub-folder is taken from [The Teensy 3 Cores](https://github.com/PaulStoffregen/cores/tree/master/teensy3)
-- The `tools` sub-folder is taken from [Teensyduino](http://www.pjrc.com/teensy/td_download.html)
-- The `src/main.cpp` file is moved, unmodified from `teensy3/main.cpp`
-- The `Makefile` file is moved, modified from `teensy3/Makefile`
-- The `49-teensy.rules` file is taken from [PJRC's udev rules](http://www.pjrc.com/teensy/49-teensy.rules)
-
-Modifications to `Makefile` include
-- Add support for arduino libraries
-- Change tools directory
-- Calculate target name from current directory
-- Prettify rule output
-- Do not upload by default, only build
+- May 31: Initial meeting
+- June 8th: Dispatcher board rev #1 sent to printer
+- June 9th: Main board rev #1 sent to printer
+- June 10th: Sensor board rev #1 sent to printer
+- July 1st: Boards return from printer, soldering begins
+- July 6th: Final board revisions sent to printer
+- July 27th: Final boards return from printer, soldering begins
+- August 20th: Installation begins on playa
+- August 28th: Burning Man begins

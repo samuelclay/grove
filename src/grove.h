@@ -23,7 +23,7 @@ const unsigned long REST_DRIP_TRIP_MS = 60000;
 unsigned long beginTime   = 0;
 
 uint32_t dripCount = 0;
-const int DRIP_LIMIT = 100;
+const int DRIP_LIMIT = 50;
 double dripStarts[DRIP_LIMIT];
 unsigned int dripColors[DRIP_LIMIT];
 
