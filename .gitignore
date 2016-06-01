@@ -34,3 +34,4 @@
 *.d
 *.hex
 *.elf
+.DS_Store

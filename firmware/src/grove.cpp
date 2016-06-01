@@ -18,7 +18,7 @@ void addRandomDrip() {
         int latestDripStart = dripStarts[(dripCount % DRIP_LIMIT)-1];
         progress = (millis() - latestDripStart) / float(REST_DRIP_TRIP_MS);
 
-        if (progress < (REST_DRIP_WIDTH*2/float(ledsPerStrip))) return;
+        if (progress <= (REST_DRIP_WIDTH*2/float(ledsPerStrip))) return;
     }
     
     if (!dripCount || random(0, floor(250 * max(1.f - progress, 1))) <= 1) {

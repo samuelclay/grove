@@ -26,12 +26,17 @@ uint32_t dripCount = 0;
 const int DRIP_LIMIT = 50;
 double dripStarts[DRIP_LIMIT];
 unsigned int dripColors[DRIP_LIMIT];
+unsigned int dripWidth[DRIP_LIMIT];
 
 // ========
 // = LEDs =
 // ========
 
 OctoWS2811 leds(ledsPerStrip, displayMemory, drawingMemory, config);
+
+// =============
+// = Functions =
+// =============
 
 void drawDrip(int d, int dripStart, int color);
 void addRandomDrip();

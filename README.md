@@ -1,6 +1,8 @@
 Grove
 =====
 
+Mailing list: grove-electronics@googlegroups.com
+
 # Boards
 
 1) Main board - Teensy shield
