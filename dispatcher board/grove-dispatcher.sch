@@ -1,0 +1,1018 @@
+EESchema Schematic File Version 2
+LIBS:power
+LIBS:device
+LIBS:transistors
+LIBS:conn
+LIBS:linear
+LIBS:regul
+LIBS:74xx
+LIBS:cmos4000
+LIBS:adc-dac
+LIBS:memory
+LIBS:xilinx
+LIBS:microcontrollers
+LIBS:dsp
+LIBS:microchip
+LIBS:analog_switches
+LIBS:motorola
+LIBS:texas
+LIBS:intel
+LIBS:audio
+LIBS:interface
+LIBS:digital-audio
+LIBS:philips
+LIBS:display
+LIBS:cypress
+LIBS:siliconi
+LIBS:opto
+LIBS:atmel
+LIBS:contrib
+LIBS:valves
+LIBS:grove-dispatcher-cache
+EELAYER 25 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L CONN_01X05 P1
+U 1 1 57577CD4
+P 1050 2050
+F 0 "P1" H 1050 2350 50  0000 C CNN
+F 1 "CONN_01X05" V 1150 2050 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x05" H 1050 2050 50  0001 C CNN
+F 3 "" H 1050 2050 50  0000 C CNN
+	1    1050 2050
+	-1   0    0    -1  
+$EndComp
+$Comp
+L CONN_01X06 P2
+U 1 1 57577F25
+P 4000 2100
+F 0 "P2" H 4000 2450 50  0000 C CNN
+F 1 "CONN_01X06" V 4100 2100 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x06" H 4000 2100 50  0001 C CNN
+F 3 "" H 4000 2100 50  0000 C CNN
+	1    4000 2100
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR01
+U 1 1 57578AD1
+P 1650 2150
+F 0 "#PWR01" H 1650 1900 50  0001 C CNN
+F 1 "GND" H 1650 2000 50  0000 C CNN
+F 2 "" H 1650 2150 50  0000 C CNN
+F 3 "" H 1650 2150 50  0000 C CNN
+	1    1650 2150
+	0    1    1    0   
+$EndComp
+$Comp
+L GND #PWR02
+U 1 1 57578C2A
+P 1550 2550
+F 0 "#PWR02" H 1550 2300 50  0001 C CNN
+F 1 "GND" H 1550 2400 50  0000 C CNN
+F 2 "" H 1550 2550 50  0000 C CNN
+F 3 "" H 1550 2550 50  0000 C CNN
+	1    1550 2550
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1250 1850 1700 1850
+Wire Wire Line
+	1700 1950 1250 1950
+Wire Wire Line
+	1250 2050 1700 2050
+Wire Wire Line
+	1250 2150 1400 2150
+Wire Wire Line
+	1400 2150 1400 2350
+Wire Wire Line
+	1250 2250 1350 2250
+Wire Wire Line
+	1350 2250 1350 2450
+Wire Wire Line
+	1350 2450 1700 2450
+Wire Wire Line
+	1400 2350 1700 2350
+Wire Wire Line
+	1700 2150 1650 2150
+Wire Wire Line
+	1550 2550 1550 2450
+Connection ~ 1550 2450
+Wire Wire Line
+	3450 1850 3800 1850
+Text Label 3450 1850 0    60   ~ 0
+ROUT+
+Wire Wire Line
+	3450 1950 3800 1950
+Wire Wire Line
+	3450 2050 3800 2050
+Wire Wire Line
+	3450 2150 3800 2150
+Wire Wire Line
+	3450 2250 3800 2250
+Wire Wire Line
+	3450 2350 3800 2350
+Text Label 3450 1950 0    60   ~ 0
+ROUT-
+Text Label 3450 2050 0    60   ~ 0
+GOUT+
+Text Label 3450 2150 0    60   ~ 0
+GOUT-
+Text Label 3450 2250 0    60   ~ 0
+BOUT+
+Text Label 3450 2350 0    60   ~ 0
+BOUT-
+$Comp
+L CONN_01X06 P4
+U 1 1 57579041
+P 5050 2100
+F 0 "P4" H 5050 2450 50  0000 C CNN
+F 1 "CONN_01X06" V 5150 2100 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x06" H 5050 2100 50  0001 C CNN
+F 3 "" H 5050 2100 50  0000 C CNN
+	1    5050 2100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4500 1850 4850 1850
+Text Label 4500 1850 0    60   ~ 0
+ROUT+
+Wire Wire Line
+	4500 1950 4850 1950
+Wire Wire Line
+	4500 2050 4850 2050
+Wire Wire Line
+	4500 2150 4850 2150
+Wire Wire Line
+	4500 2250 4850 2250
+Wire Wire Line
+	4500 2350 4850 2350
+Text Label 4500 1950 0    60   ~ 0
+ROUT-
+Text Label 4500 2050 0    60   ~ 0
+GOUT+
+Text Label 4500 2150 0    60   ~ 0
+GOUT-
+Text Label 4500 2250 0    60   ~ 0
+BOUT+
+Text Label 4500 2350 0    60   ~ 0
+BOUT-
+$Comp
+L CONN_01X06 P3
+U 1 1 57579097
+P 4000 2900
+F 0 "P3" H 4000 3250 50  0000 C CNN
+F 1 "CONN_01X06" V 4100 2900 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x06" H 4000 2900 50  0001 C CNN
+F 3 "" H 4000 2900 50  0000 C CNN
+	1    4000 2900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3450 2650 3800 2650
+Text Label 3450 2650 0    60   ~ 0
+ROUT+
+Wire Wire Line
+	3450 2750 3800 2750
+Wire Wire Line
+	3450 2850 3800 2850
+Wire Wire Line
+	3450 2950 3800 2950
+Wire Wire Line
+	3450 3050 3800 3050
+Wire Wire Line
+	3450 3150 3800 3150
+Text Label 3450 2750 0    60   ~ 0
+ROUT-
+Text Label 3450 2850 0    60   ~ 0
+GOUT+
+Text Label 3450 2950 0    60   ~ 0
+GOUT-
+Text Label 3450 3050 0    60   ~ 0
+BOUT+
+Text Label 3450 3150 0    60   ~ 0
+BOUT-
+$Comp
+L CONN_01X06 P5
+U 1 1 575790A9
+P 5050 2900
+F 0 "P5" H 5050 3250 50  0000 C CNN
+F 1 "CONN_01X06" V 5150 2900 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x06" H 5050 2900 50  0001 C CNN
+F 3 "" H 5050 2900 50  0000 C CNN
+	1    5050 2900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4500 2650 4850 2650
+Text Label 4500 2650 0    60   ~ 0
+ROUT+
+Wire Wire Line
+	4500 2750 4850 2750
+Wire Wire Line
+	4500 2850 4850 2850
+Wire Wire Line
+	4500 2950 4850 2950
+Wire Wire Line
+	4500 3050 4850 3050
+Wire Wire Line
+	4500 3150 4850 3150
+Text Label 4500 2750 0    60   ~ 0
+ROUT-
+Text Label 4500 2850 0    60   ~ 0
+GOUT+
+Text Label 4500 2950 0    60   ~ 0
+GOUT-
+Text Label 4500 3050 0    60   ~ 0
+BOUT+
+Text Label 4500 3150 0    60   ~ 0
+BOUT-
+Text Label 1350 1850 0    60   ~ 0
+RIN
+Text Label 1350 1950 0    60   ~ 0
+GIN
+Text Label 1350 2050 0    60   ~ 0
+BIN
+Text Label 1500 2350 0    60   ~ 0
+V+
+Wire Wire Line
+	3300 1850 2900 1850
+Wire Wire Line
+	3300 1950 2900 1950
+Wire Wire Line
+	3300 2100 2900 2100
+Wire Wire Line
+	3300 2200 2900 2200
+Wire Wire Line
+	3300 2350 2900 2350
+Wire Wire Line
+	3300 2450 2900 2450
+Text Label 3300 1850 2    60   ~ 0
+ROUT+
+Text Label 3300 1950 2    60   ~ 0
+ROUT-
+Text Label 3300 2100 2    60   ~ 0
+GOUT+
+Text Label 3300 2200 2    60   ~ 0
+GOUT-
+Text Label 3300 2350 2    60   ~ 0
+BOUT+
+Text Label 3300 2450 2    60   ~ 0
+BOUT-
+$Comp
+L PICO_BUCK U1
+U 1 1 5758F308
+P 2300 2150
+F 0 "U1" H 2300 2150 60  0000 C CNN
+F 1 "PICO_BUCK" H 2300 2600 60  0000 C CNN
+F 2 "grove-dispatcher:PICO_BUCK" H 2300 2250 60  0001 C CNN
+F 3 "" H 2300 2250 60  0000 C CNN
+	1    2300 2150
+	1    0    0    -1  
+$EndComp
+Text Notes 750  1650 0    60   ~ 0
+FROM MAIN BOARD
+Text Notes 4000 1650 0    60   ~ 0
+RGB LED OUTPUTS
+$Comp
+L CONN_01X05 P11
+U 1 1 5758FD85
+P 6300 2050
+F 0 "P11" H 6300 2350 50  0000 C CNN
+F 1 "CONN_01X05" V 6400 2050 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x05" H 6300 2050 50  0001 C CNN
+F 3 "" H 6300 2050 50  0000 C CNN
+	1    6300 2050
+	-1   0    0    -1  
+$EndComp
+$Comp
+L CONN_01X06 P13
+U 1 1 5758FD8B
+P 9250 2100
+F 0 "P13" H 9250 2450 50  0000 C CNN
+F 1 "CONN_01X06" V 9350 2100 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x06" H 9250 2100 50  0001 C CNN
+F 3 "" H 9250 2100 50  0000 C CNN
+	1    9250 2100
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR03
+U 1 1 5758FD91
+P 6900 2150
+F 0 "#PWR03" H 6900 1900 50  0001 C CNN
+F 1 "GND" H 6900 2000 50  0000 C CNN
+F 2 "" H 6900 2150 50  0000 C CNN
+F 3 "" H 6900 2150 50  0000 C CNN
+	1    6900 2150
+	0    1    1    0   
+$EndComp
+$Comp
+L GND #PWR04
+U 1 1 5758FD97
+P 6800 2550
+F 0 "#PWR04" H 6800 2300 50  0001 C CNN
+F 1 "GND" H 6800 2400 50  0000 C CNN
+F 2 "" H 6800 2550 50  0000 C CNN
+F 3 "" H 6800 2550 50  0000 C CNN
+	1    6800 2550
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6500 1850 6950 1850
+Wire Wire Line
+	6950 1950 6500 1950
+Wire Wire Line
+	6500 2050 6950 2050
+Wire Wire Line
+	6500 2150 6650 2150
+Wire Wire Line
+	6650 2150 6650 2350
+Wire Wire Line
+	6500 2250 6600 2250
+Wire Wire Line
+	6600 2250 6600 2450
+Wire Wire Line
+	6600 2450 6950 2450
+Wire Wire Line
+	6650 2350 6950 2350
+Wire Wire Line
+	6950 2150 6900 2150
+Wire Wire Line
+	6800 2550 6800 2450
+Connection ~ 6800 2450
+Wire Wire Line
+	8700 1850 9050 1850
+Text Label 8700 1850 0    60   ~ 0
+ROUT+
+Wire Wire Line
+	8700 1950 9050 1950
+Wire Wire Line
+	8700 2050 9050 2050
+Wire Wire Line
+	8700 2150 9050 2150
+Wire Wire Line
+	8700 2250 9050 2250
+Wire Wire Line
+	8700 2350 9050 2350
+Text Label 8700 1950 0    60   ~ 0
+ROUT-
+Text Label 8700 2050 0    60   ~ 0
+GOUT+
+Text Label 8700 2150 0    60   ~ 0
+GOUT-
+Text Label 8700 2250 0    60   ~ 0
+BOUT+
+Text Label 8700 2350 0    60   ~ 0
+BOUT-
+$Comp
+L CONN_01X06 P17
+U 1 1 5758FDB5
+P 10300 2100
+F 0 "P17" H 10300 2450 50  0000 C CNN
+F 1 "CONN_01X06" V 10400 2100 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x06" H 10300 2100 50  0001 C CNN
+F 3 "" H 10300 2100 50  0000 C CNN
+	1    10300 2100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9750 1850 10100 1850
+Text Label 9750 1850 0    60   ~ 0
+ROUT+
+Wire Wire Line
+	9750 1950 10100 1950
+Wire Wire Line
+	9750 2050 10100 2050
+Wire Wire Line
+	9750 2150 10100 2150
+Wire Wire Line
+	9750 2250 10100 2250
+Wire Wire Line
+	9750 2350 10100 2350
+Text Label 9750 1950 0    60   ~ 0
+ROUT-
+Text Label 9750 2050 0    60   ~ 0
+GOUT+
+Text Label 9750 2150 0    60   ~ 0
+GOUT-
+Text Label 9750 2250 0    60   ~ 0
+BOUT+
+Text Label 9750 2350 0    60   ~ 0
+BOUT-
+$Comp
+L CONN_01X06 P14
+U 1 1 5758FDC7
+P 9250 2900
+F 0 "P14" H 9250 3250 50  0000 C CNN
+F 1 "CONN_01X06" V 9350 2900 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x06" H 9250 2900 50  0001 C CNN
+F 3 "" H 9250 2900 50  0000 C CNN
+	1    9250 2900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8700 2650 9050 2650
+Text Label 8700 2650 0    60   ~ 0
+ROUT+
+Wire Wire Line
+	8700 2750 9050 2750
+Wire Wire Line
+	8700 2850 9050 2850
+Wire Wire Line
+	8700 2950 9050 2950
+Wire Wire Line
+	8700 3050 9050 3050
+Wire Wire Line
+	8700 3150 9050 3150
+Text Label 8700 2750 0    60   ~ 0
+ROUT-
+Text Label 8700 2850 0    60   ~ 0
+GOUT+
+Text Label 8700 2950 0    60   ~ 0
+GOUT-
+Text Label 8700 3050 0    60   ~ 0
+BOUT+
+Text Label 8700 3150 0    60   ~ 0
+BOUT-
+$Comp
+L CONN_01X06 P18
+U 1 1 5758FDD9
+P 10300 2900
+F 0 "P18" H 10300 3250 50  0000 C CNN
+F 1 "CONN_01X06" V 10400 2900 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x06" H 10300 2900 50  0001 C CNN
+F 3 "" H 10300 2900 50  0000 C CNN
+	1    10300 2900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9750 2650 10100 2650
+Text Label 9750 2650 0    60   ~ 0
+ROUT+
+Wire Wire Line
+	9750 2750 10100 2750
+Wire Wire Line
+	9750 2850 10100 2850
+Wire Wire Line
+	9750 2950 10100 2950
+Wire Wire Line
+	9750 3050 10100 3050
+Wire Wire Line
+	9750 3150 10100 3150
+Text Label 9750 2750 0    60   ~ 0
+ROUT-
+Text Label 9750 2850 0    60   ~ 0
+GOUT+
+Text Label 9750 2950 0    60   ~ 0
+GOUT-
+Text Label 9750 3050 0    60   ~ 0
+BOUT+
+Text Label 9750 3150 0    60   ~ 0
+BOUT-
+Text Label 6600 1850 0    60   ~ 0
+RIN
+Text Label 6600 1950 0    60   ~ 0
+GIN
+Text Label 6600 2050 0    60   ~ 0
+BIN
+Text Label 6750 2350 0    60   ~ 0
+V+
+Wire Wire Line
+	8550 1850 8150 1850
+Wire Wire Line
+	8550 1950 8150 1950
+Wire Wire Line
+	8550 2100 8150 2100
+Wire Wire Line
+	8550 2200 8150 2200
+Wire Wire Line
+	8550 2350 8150 2350
+Wire Wire Line
+	8550 2450 8150 2450
+Text Label 8550 1850 2    60   ~ 0
+ROUT+
+Text Label 8550 1950 2    60   ~ 0
+ROUT-
+Text Label 8550 2100 2    60   ~ 0
+GOUT+
+Text Label 8550 2200 2    60   ~ 0
+GOUT-
+Text Label 8550 2350 2    60   ~ 0
+BOUT+
+Text Label 8550 2450 2    60   ~ 0
+BOUT-
+$Comp
+L PICO_BUCK U3
+U 1 1 5758FDFB
+P 7550 2150
+F 0 "U3" H 7550 2150 60  0000 C CNN
+F 1 "PICO_BUCK" H 7550 2600 60  0000 C CNN
+F 2 "grove-dispatcher:PICO_BUCK" H 7550 2250 60  0001 C CNN
+F 3 "" H 7550 2250 60  0000 C CNN
+	1    7550 2150
+	1    0    0    -1  
+$EndComp
+Text Notes 6000 1650 0    60   ~ 0
+FROM MAIN BOARD
+Text Notes 9250 1650 0    60   ~ 0
+RGB LED OUTPUTS
+$Comp
+L CONN_01X05 P6
+U 1 1 5758FF53
+P 1050 4050
+F 0 "P6" H 1050 4350 50  0000 C CNN
+F 1 "CONN_01X05" V 1150 4050 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x05" H 1050 4050 50  0001 C CNN
+F 3 "" H 1050 4050 50  0000 C CNN
+	1    1050 4050
+	-1   0    0    -1  
+$EndComp
+$Comp
+L CONN_01X06 P7
+U 1 1 5758FF59
+P 4000 4100
+F 0 "P7" H 4000 4450 50  0000 C CNN
+F 1 "CONN_01X06" V 4100 4100 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x06" H 4000 4100 50  0001 C CNN
+F 3 "" H 4000 4100 50  0000 C CNN
+	1    4000 4100
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR05
+U 1 1 5758FF5F
+P 1650 4150
+F 0 "#PWR05" H 1650 3900 50  0001 C CNN
+F 1 "GND" H 1650 4000 50  0000 C CNN
+F 2 "" H 1650 4150 50  0000 C CNN
+F 3 "" H 1650 4150 50  0000 C CNN
+	1    1650 4150
+	0    1    1    0   
+$EndComp
+$Comp
+L GND #PWR06
+U 1 1 5758FF65
+P 1550 4550
+F 0 "#PWR06" H 1550 4300 50  0001 C CNN
+F 1 "GND" H 1550 4400 50  0000 C CNN
+F 2 "" H 1550 4550 50  0000 C CNN
+F 3 "" H 1550 4550 50  0000 C CNN
+	1    1550 4550
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1250 3850 1700 3850
+Wire Wire Line
+	1700 3950 1250 3950
+Wire Wire Line
+	1250 4050 1700 4050
+Wire Wire Line
+	1250 4150 1400 4150
+Wire Wire Line
+	1400 4150 1400 4350
+Wire Wire Line
+	1250 4250 1350 4250
+Wire Wire Line
+	1350 4250 1350 4450
+Wire Wire Line
+	1350 4450 1700 4450
+Wire Wire Line
+	1400 4350 1700 4350
+Wire Wire Line
+	1700 4150 1650 4150
+Wire Wire Line
+	1550 4550 1550 4450
+Connection ~ 1550 4450
+Wire Wire Line
+	3450 3850 3800 3850
+Text Label 3450 3850 0    60   ~ 0
+ROUT+
+Wire Wire Line
+	3450 3950 3800 3950
+Wire Wire Line
+	3450 4050 3800 4050
+Wire Wire Line
+	3450 4150 3800 4150
+Wire Wire Line
+	3450 4250 3800 4250
+Wire Wire Line
+	3450 4350 3800 4350
+Text Label 3450 3950 0    60   ~ 0
+ROUT-
+Text Label 3450 4050 0    60   ~ 0
+GOUT+
+Text Label 3450 4150 0    60   ~ 0
+GOUT-
+Text Label 3450 4250 0    60   ~ 0
+BOUT+
+Text Label 3450 4350 0    60   ~ 0
+BOUT-
+$Comp
+L CONN_01X06 P9
+U 1 1 5758FF83
+P 5050 4100
+F 0 "P9" H 5050 4450 50  0000 C CNN
+F 1 "CONN_01X06" V 5150 4100 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x06" H 5050 4100 50  0001 C CNN
+F 3 "" H 5050 4100 50  0000 C CNN
+	1    5050 4100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4500 3850 4850 3850
+Text Label 4500 3850 0    60   ~ 0
+ROUT+
+Wire Wire Line
+	4500 3950 4850 3950
+Wire Wire Line
+	4500 4050 4850 4050
+Wire Wire Line
+	4500 4150 4850 4150
+Wire Wire Line
+	4500 4250 4850 4250
+Wire Wire Line
+	4500 4350 4850 4350
+Text Label 4500 3950 0    60   ~ 0
+ROUT-
+Text Label 4500 4050 0    60   ~ 0
+GOUT+
+Text Label 4500 4150 0    60   ~ 0
+GOUT-
+Text Label 4500 4250 0    60   ~ 0
+BOUT+
+Text Label 4500 4350 0    60   ~ 0
+BOUT-
+$Comp
+L CONN_01X06 P8
+U 1 1 5758FF95
+P 4000 4900
+F 0 "P8" H 4000 5250 50  0000 C CNN
+F 1 "CONN_01X06" V 4100 4900 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x06" H 4000 4900 50  0001 C CNN
+F 3 "" H 4000 4900 50  0000 C CNN
+	1    4000 4900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3450 4650 3800 4650
+Text Label 3450 4650 0    60   ~ 0
+ROUT+
+Wire Wire Line
+	3450 4750 3800 4750
+Wire Wire Line
+	3450 4850 3800 4850
+Wire Wire Line
+	3450 4950 3800 4950
+Wire Wire Line
+	3450 5050 3800 5050
+Wire Wire Line
+	3450 5150 3800 5150
+Text Label 3450 4750 0    60   ~ 0
+ROUT-
+Text Label 3450 4850 0    60   ~ 0
+GOUT+
+Text Label 3450 4950 0    60   ~ 0
+GOUT-
+Text Label 3450 5050 0    60   ~ 0
+BOUT+
+Text Label 3450 5150 0    60   ~ 0
+BOUT-
+$Comp
+L CONN_01X06 P10
+U 1 1 5758FFA7
+P 5050 4900
+F 0 "P10" H 5050 5250 50  0000 C CNN
+F 1 "CONN_01X06" V 5150 4900 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x06" H 5050 4900 50  0001 C CNN
+F 3 "" H 5050 4900 50  0000 C CNN
+	1    5050 4900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4500 4650 4850 4650
+Text Label 4500 4650 0    60   ~ 0
+ROUT+
+Wire Wire Line
+	4500 4750 4850 4750
+Wire Wire Line
+	4500 4850 4850 4850
+Wire Wire Line
+	4500 4950 4850 4950
+Wire Wire Line
+	4500 5050 4850 5050
+Wire Wire Line
+	4500 5150 4850 5150
+Text Label 4500 4750 0    60   ~ 0
+ROUT-
+Text Label 4500 4850 0    60   ~ 0
+GOUT+
+Text Label 4500 4950 0    60   ~ 0
+GOUT-
+Text Label 4500 5050 0    60   ~ 0
+BOUT+
+Text Label 4500 5150 0    60   ~ 0
+BOUT-
+Text Label 1350 3850 0    60   ~ 0
+RIN
+Text Label 1350 3950 0    60   ~ 0
+GIN
+Text Label 1350 4050 0    60   ~ 0
+BIN
+Text Label 1500 4350 0    60   ~ 0
+V+
+Wire Wire Line
+	3300 3850 2900 3850
+Wire Wire Line
+	3300 3950 2900 3950
+Wire Wire Line
+	3300 4100 2900 4100
+Wire Wire Line
+	3300 4200 2900 4200
+Wire Wire Line
+	3300 4350 2900 4350
+Wire Wire Line
+	3300 4450 2900 4450
+Text Label 3300 3850 2    60   ~ 0
+ROUT+
+Text Label 3300 3950 2    60   ~ 0
+ROUT-
+Text Label 3300 4100 2    60   ~ 0
+GOUT+
+Text Label 3300 4200 2    60   ~ 0
+GOUT-
+Text Label 3300 4350 2    60   ~ 0
+BOUT+
+Text Label 3300 4450 2    60   ~ 0
+BOUT-
+$Comp
+L PICO_BUCK U2
+U 1 1 5758FFC9
+P 2300 4150
+F 0 "U2" H 2300 4150 60  0000 C CNN
+F 1 "PICO_BUCK" H 2300 4600 60  0000 C CNN
+F 2 "grove-dispatcher:PICO_BUCK" H 2300 4250 60  0001 C CNN
+F 3 "" H 2300 4250 60  0000 C CNN
+	1    2300 4150
+	1    0    0    -1  
+$EndComp
+Text Notes 750  3650 0    60   ~ 0
+FROM MAIN BOARD
+Text Notes 4000 3650 0    60   ~ 0
+RGB LED OUTPUTS
+$Comp
+L CONN_01X05 P12
+U 1 1 5758FFD1
+P 6300 4050
+F 0 "P12" H 6300 4350 50  0000 C CNN
+F 1 "CONN_01X05" V 6400 4050 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x05" H 6300 4050 50  0001 C CNN
+F 3 "" H 6300 4050 50  0000 C CNN
+	1    6300 4050
+	-1   0    0    -1  
+$EndComp
+$Comp
+L CONN_01X06 P15
+U 1 1 5758FFD7
+P 9250 4100
+F 0 "P15" H 9250 4450 50  0000 C CNN
+F 1 "CONN_01X06" V 9350 4100 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x06" H 9250 4100 50  0001 C CNN
+F 3 "" H 9250 4100 50  0000 C CNN
+	1    9250 4100
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR07
+U 1 1 5758FFDD
+P 6900 4150
+F 0 "#PWR07" H 6900 3900 50  0001 C CNN
+F 1 "GND" H 6900 4000 50  0000 C CNN
+F 2 "" H 6900 4150 50  0000 C CNN
+F 3 "" H 6900 4150 50  0000 C CNN
+	1    6900 4150
+	0    1    1    0   
+$EndComp
+$Comp
+L GND #PWR08
+U 1 1 5758FFE3
+P 6800 4550
+F 0 "#PWR08" H 6800 4300 50  0001 C CNN
+F 1 "GND" H 6800 4400 50  0000 C CNN
+F 2 "" H 6800 4550 50  0000 C CNN
+F 3 "" H 6800 4550 50  0000 C CNN
+	1    6800 4550
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6500 3850 6950 3850
+Wire Wire Line
+	6950 3950 6500 3950
+Wire Wire Line
+	6500 4050 6950 4050
+Wire Wire Line
+	6500 4150 6650 4150
+Wire Wire Line
+	6650 4150 6650 4350
+Wire Wire Line
+	6500 4250 6600 4250
+Wire Wire Line
+	6600 4250 6600 4450
+Wire Wire Line
+	6600 4450 6950 4450
+Wire Wire Line
+	6650 4350 6950 4350
+Wire Wire Line
+	6950 4150 6900 4150
+Wire Wire Line
+	6800 4550 6800 4450
+Connection ~ 6800 4450
+Wire Wire Line
+	8700 3850 9050 3850
+Text Label 8700 3850 0    60   ~ 0
+ROUT+
+Wire Wire Line
+	8700 3950 9050 3950
+Wire Wire Line
+	8700 4050 9050 4050
+Wire Wire Line
+	8700 4150 9050 4150
+Wire Wire Line
+	8700 4250 9050 4250
+Wire Wire Line
+	8700 4350 9050 4350
+Text Label 8700 3950 0    60   ~ 0
+ROUT-
+Text Label 8700 4050 0    60   ~ 0
+GOUT+
+Text Label 8700 4150 0    60   ~ 0
+GOUT-
+Text Label 8700 4250 0    60   ~ 0
+BOUT+
+Text Label 8700 4350 0    60   ~ 0
+BOUT-
+$Comp
+L CONN_01X06 P19
+U 1 1 57590001
+P 10300 4100
+F 0 "P19" H 10300 4450 50  0000 C CNN
+F 1 "CONN_01X06" V 10400 4100 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x06" H 10300 4100 50  0001 C CNN
+F 3 "" H 10300 4100 50  0000 C CNN
+	1    10300 4100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9750 3850 10100 3850
+Text Label 9750 3850 0    60   ~ 0
+ROUT+
+Wire Wire Line
+	9750 3950 10100 3950
+Wire Wire Line
+	9750 4050 10100 4050
+Wire Wire Line
+	9750 4150 10100 4150
+Wire Wire Line
+	9750 4250 10100 4250
+Wire Wire Line
+	9750 4350 10100 4350
+Text Label 9750 3950 0    60   ~ 0
+ROUT-
+Text Label 9750 4050 0    60   ~ 0
+GOUT+
+Text Label 9750 4150 0    60   ~ 0
+GOUT-
+Text Label 9750 4250 0    60   ~ 0
+BOUT+
+Text Label 9750 4350 0    60   ~ 0
+BOUT-
+$Comp
+L CONN_01X06 P16
+U 1 1 57590013
+P 9250 4900
+F 0 "P16" H 9250 5250 50  0000 C CNN
+F 1 "CONN_01X06" V 9350 4900 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x06" H 9250 4900 50  0001 C CNN
+F 3 "" H 9250 4900 50  0000 C CNN
+	1    9250 4900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8700 4650 9050 4650
+Text Label 8700 4650 0    60   ~ 0
+ROUT+
+Wire Wire Line
+	8700 4750 9050 4750
+Wire Wire Line
+	8700 4850 9050 4850
+Wire Wire Line
+	8700 4950 9050 4950
+Wire Wire Line
+	8700 5050 9050 5050
+Wire Wire Line
+	8700 5150 9050 5150
+Text Label 8700 4750 0    60   ~ 0
+ROUT-
+Text Label 8700 4850 0    60   ~ 0
+GOUT+
+Text Label 8700 4950 0    60   ~ 0
+GOUT-
+Text Label 8700 5050 0    60   ~ 0
+BOUT+
+Text Label 8700 5150 0    60   ~ 0
+BOUT-
+$Comp
+L CONN_01X06 P20
+U 1 1 57590025
+P 10300 4900
+F 0 "P20" H 10300 5250 50  0000 C CNN
+F 1 "CONN_01X06" V 10400 4900 50  0000 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x06" H 10300 4900 50  0001 C CNN
+F 3 "" H 10300 4900 50  0000 C CNN
+	1    10300 4900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9750 4650 10100 4650
+Text Label 9750 4650 0    60   ~ 0
+ROUT+
+Wire Wire Line
+	9750 4750 10100 4750
+Wire Wire Line
+	9750 4850 10100 4850
+Wire Wire Line
+	9750 4950 10100 4950
+Wire Wire Line
+	9750 5050 10100 5050
+Wire Wire Line
+	9750 5150 10100 5150
+Text Label 9750 4750 0    60   ~ 0
+ROUT-
+Text Label 9750 4850 0    60   ~ 0
+GOUT+
+Text Label 9750 4950 0    60   ~ 0
+GOUT-
+Text Label 9750 5050 0    60   ~ 0
+BOUT+
+Text Label 9750 5150 0    60   ~ 0
+BOUT-
+Text Label 6600 3850 0    60   ~ 0
+RIN
+Text Label 6600 3950 0    60   ~ 0
+GIN
+Text Label 6600 4050 0    60   ~ 0
+BIN
+Text Label 6750 4350 0    60   ~ 0
+V+
+Wire Wire Line
+	8550 3850 8150 3850
+Wire Wire Line
+	8550 3950 8150 3950
+Wire Wire Line
+	8550 4100 8150 4100
+Wire Wire Line
+	8550 4200 8150 4200
+Wire Wire Line
+	8550 4350 8150 4350
+Wire Wire Line
+	8550 4450 8150 4450
+Text Label 8550 3850 2    60   ~ 0
+ROUT+
+Text Label 8550 3950 2    60   ~ 0
+ROUT-
+Text Label 8550 4100 2    60   ~ 0
+GOUT+
+Text Label 8550 4200 2    60   ~ 0
+GOUT-
+Text Label 8550 4350 2    60   ~ 0
+BOUT+
+Text Label 8550 4450 2    60   ~ 0
+BOUT-
+$Comp
+L PICO_BUCK U4
+U 1 1 57590047
+P 7550 4150
+F 0 "U4" H 7550 4150 60  0000 C CNN
+F 1 "PICO_BUCK" H 7550 4600 60  0000 C CNN
+F 2 "grove-dispatcher:PICO_BUCK" H 7550 4250 60  0001 C CNN
+F 3 "" H 7550 4250 60  0000 C CNN
+	1    7550 4150
+	1    0    0    -1  
+$EndComp
+Text Notes 6000 3650 0    60   ~ 0
+FROM MAIN BOARD
+Text Notes 9250 3650 0    60   ~ 0
+RGB LED OUTPUTS
+$EndSCHEMATC
