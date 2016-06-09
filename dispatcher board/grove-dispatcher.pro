@@ -1,4 +1,4 @@
-update=Thursday, June 09, 2016 'amt' 12:47:59 am
+update=Thursday, June 09, 2016 'amt' 02:11:42 am
 version=1
 last_client=kicad
 [pcbnew]
@@ -58,3 +58,4 @@ LibName26=opto
 LibName27=atmel
 LibName28=contrib
 LibName29=valves
+LibName30=grove-dispatcher
