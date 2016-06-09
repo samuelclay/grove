@@ -14,10 +14,6 @@
 *.la
 *.lo
 
-!dispatcher board/*.lib
-!main board/*.lib
-!sensor board/*.lib
-
 # Shared objects (inc. Windows DLLs)
 *.dll
 *.so
@@ -39,3 +35,13 @@
 *.hex
 *.elf
 .DS_Store
+
+# Kidcad stuff
+
+!dispatcher board/*.lib
+!main board/*.lib
+!sensor board/*.lib
+
+dispatcher board/**/*bak
+main board/**/*bak
+sensor board/**/*bak

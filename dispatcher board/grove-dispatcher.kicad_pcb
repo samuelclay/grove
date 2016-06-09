@@ -250,7 +250,7 @@
   )
 
   (module Resistors_SMD:R_1812_HandSoldering (layer F.Cu) (tedit 5572A996) (tstamp 57590897)
-    (at 43.18 60.96 270)
+    (at 46.99 60.96 270)
     (descr "Resistor SMD 1812, hand soldering, Panasonic (see ERJ12)")
     (tags "resistor 1812")
     (path /57590876)
