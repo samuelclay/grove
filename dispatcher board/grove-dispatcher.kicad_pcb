@@ -3,9 +3,9 @@
   (general
     (links 159)
     (no_connects 0)
-    (area 0 0 0 0)
+    (area 67.996429 58.24 232.993572 135.960001)
     (thickness 1.6)
-    (drawings 5)
+    (drawings 6)
     (tracks 293)
     (zones 0)
     (modules 54)
@@ -1946,6 +1946,9 @@
     (pad 1 np_thru_hole circle (at 0 0) (size 2.5 2.5) (drill 2.5) (layers *.Cu *.Mask F.SilkS))
   )
 
+  (gr_text "grove - dispatcher board - v01" (at 194.945 61.595) (layer F.SilkS)
+    (effects (font (size 1.5 1.5) (thickness 0.3)))
+  )
   (gr_line (start 71.12 135.89) (end 72.39 135.89) (angle 90) (layer Edge.Cuts) (width 0.1))
   (gr_line (start 71.12 58.42) (end 71.12 135.89) (angle 90) (layer Edge.Cuts) (width 0.1))
   (gr_line (start 229.87 58.42) (end 71.12 58.42) (angle 90) (layer Edge.Cuts) (width 0.1))
