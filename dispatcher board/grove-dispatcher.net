@@ -1,7 +1,7 @@
 (export (version D)
   (design
     (source "/Users/sparky/Projects/grove/dispatcher board/grove-dispatcher.sch")
-    (date "Monday, June 20, 2016 'amt' 01:10:31 am")
+    (date "Monday, June 20, 2016 'pmt' 03:16:02 pm")
     (tool "Eeschema 4.0.2-stable")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
@@ -592,12 +592,12 @@
   (libraries
     (library (logical device)
       (uri "/Library/Application Support/kicad/library/device.lib"))
-    (library (logical conn)
-      (uri "/Library/Application Support/kicad/library/conn.lib"))
+    (library (logical grove-dispatcher)
+      (uri "/Users/sparky/Projects/grove/dispatcher board/grove-dispatcher.lib"))
     (library (logical regul)
       (uri "/Library/Application Support/kicad/library/regul.lib"))
-    (library (logical grove-dispatcher)
-      (uri "/Users/sparky/Projects/grove/dispatcher board/grove-dispatcher.lib")))
+    (library (logical conn)
+      (uri "/Library/Application Support/kicad/library/conn.lib")))
   (nets
     (net (code 1) (name "Net-(F12-Pad1)")
       (node (ref F12) (pin 1))
