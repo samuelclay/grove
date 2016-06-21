@@ -1304,15 +1304,11 @@ Wire Wire Line
 	2700 1650 3150 1650
 Wire Wire Line
 	2700 1850 2750 1850
-Wire Wire Line
-	2700 1750 2750 1750
-Wire Wire Line
-	2750 1950 2700 1950
-Text Label 2750 1750 0    60   ~ 0
+Text Label 2750 1950 0    60   ~ 0
 SCLK_5V
 Text Label 2750 1850 0    60   ~ 0
 MOSI_5V
-Text Label 2750 1950 0    60   ~ 0
+Text Label 2750 1750 0    60   ~ 0
 CS_5V
 $Comp
 L +5V #PWR011
@@ -1921,4 +1917,8 @@ Connection ~ 2300 5450
 Wire Wire Line
 	2450 5200 2450 5550
 Connection ~ 2450 5550
+Wire Wire Line
+	2700 1750 2750 1750
+Wire Wire Line
+	2700 1950 2750 1950
 $EndSCHEMATC
