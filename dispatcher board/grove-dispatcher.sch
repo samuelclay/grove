@@ -1921,4 +1921,10 @@ Wire Wire Line
 	2700 1750 2750 1750
 Wire Wire Line
 	2700 1950 2750 1950
+Text Label 2600 5350 0    60   ~ 0
+SCLK_IN
+Text Label 2600 5450 0    60   ~ 0
+CS_IN
+Text Label 2600 5550 0    60   ~ 0
+MOSI_IN
 $EndSCHEMATC
