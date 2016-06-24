@@ -2732,7 +2732,7 @@
   (gr_line (start 61.595 57.15) (end 61.595 132.715) (angle 90) (layer Edge.Cuts) (width 0.1))
   (gr_line (start 218.44 57.15) (end 61.595 57.15) (angle 90) (layer Edge.Cuts) (width 0.1))
   (gr_line (start 218.44 132.715) (end 218.44 57.15) (angle 90) (layer Edge.Cuts) (width 0.1))
-  (gr_text "grove - dispatcher board - v01" (at 172.72 60.325) (layer F.SilkS)
+  (gr_text "grove - dispatcher board - v01" (at 153.3 60.065) (layer F.SilkS)
     (effects (font (size 1.5 1.5) (thickness 0.3)))
   )
 
