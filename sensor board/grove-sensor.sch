@@ -1024,17 +1024,17 @@ Wire Wire Line
 	9150 950  9350 950 
 Wire Wire Line
 	9150 1150 9350 1150
-Text Label 7600 2500 0    60   ~ 0
+Text Label 7600 2800 0    60   ~ 0
 LED1_R
 Text Label 7600 2650 0    60   ~ 0
 LED1_G
-Text Label 7600 2800 0    60   ~ 0
+Text Label 7600 2500 0    60   ~ 0
 LED1_B
-Text Label 7600 2950 0    60   ~ 0
+Text Label 7600 3250 0    60   ~ 0
 LED2_R
 Text Label 7600 3100 0    60   ~ 0
 LED2_G
-Text Label 7600 3250 0    60   ~ 0
+Text Label 7600 2950 0    60   ~ 0
 LED2_B
 Wire Wire Line
 	7600 3250 7950 3250
