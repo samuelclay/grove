@@ -1,17 +1,19 @@
 #include <OctoWS2811.h>
 #include <avr/power.h>
+#include <SPI.h>
 
 // ===================
 // = Pin Definitions =
 // ===================
 
 const uint8_t treeAPin = 14;
+const int slaveSelectPin = 10;
 
 // ===========
 // = Globals =
 // ===========
 
-const int ledsPerStrip = 600;
+const int ledsPerStrip = 16;
 
 DMAMEM int displayMemory[ledsPerStrip*6];
 int drawingMemory[ledsPerStrip*6];
@@ -35,6 +37,13 @@ unsigned int dripWidth[DRIP_LIMIT];
 
 OctoWS2811 leds(ledsPerStrip, displayMemory, drawingMemory, config);
 
+// ========
+// = SPI =
+// ========
+
+SPISettings dispatcherSPISettings(1e6, MSBFIRST, SPI_MODE3); 
+
+
 // =============
 // = Functions =
 // =============
@@ -43,3 +52,5 @@ void drawDrip(int d, int dripStart, int color);
 void addRandomDrip();
 void advanceRestDrips();
 int randomGreen();
+void dispatcher(uint8_t chan, uint8_t value);
+uint8_t flipByte(uint8_t val);

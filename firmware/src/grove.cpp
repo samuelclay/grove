@@ -1,13 +1,45 @@
 #include "grove.h"
 
 void setup() { 
-    leds.begin();
-    leds.show();
-    randomSeed(analogRead(0));
+    // leds.begin();
+    // leds.show();
+    // randomSeed(analogRead(0));
+
+    pinMode (slaveSelectPin, OUTPUT);
+    SPI.begin(); 
 }
+
 void loop() {
-    addRandomDrip();
-    advanceRestDrips();
+    // addRandomDrip();
+    // advanceRestDrips();
+    for (uint8_t value = 0; value < 255; value++) {
+        for (uint8_t chan = 0; chan < 12; chan++) {
+            dispatcher(chan, value);
+        }
+        delay(10);
+    }
+}
+
+void dispatcher(uint8_t chan, uint8_t value) {
+    // take the SS pin low to select the chip:
+    SPI.beginTransaction(dispatcherSPISettings);
+
+    digitalWrite(slaveSelectPin, LOW);
+    //  send in the address and value via SPI:
+    SPI.transfer(flipByte((chan & 0x0F) << 4));
+    SPI.transfer(value);
+    // take the SS pin high to de-select the chip:
+    digitalWrite(slaveSelectPin,HIGH);
+
+    SPI.endTransaction();
+}
+
+uint8_t flipByte(uint8_t val) {
+    uint8_t result = 0;
+    for (uint8_t i = 0; i < 8; i++) {
+        result |= ((val & ((0x01) << i)) >> i) << (7-i);
+    }
+    return result;
 }
 
 void addRandomDrip() {
