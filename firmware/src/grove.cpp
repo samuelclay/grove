@@ -9,15 +9,32 @@ void setup() {
     SPI.begin(); 
 }
 
+void up() {
+    for (uint value = 0; value < 255; value++) {
+        for (uint chan = 1; chan <= 12; chan++) {
+            dispatcher(chan, value);
+        }
+        delay(5);
+    }
+}
+
+void down() {
+    for (uint value = 0; value <= 255; value++) {
+        for (uint chan = 1; chan <= 12; chan++) {
+            dispatcher(chan, 255-value);
+        }
+        delay(5);
+    }
+}
+
+
+
 void loop() {
     // addRandomDrip();
     // advanceRestDrips();
-    for (uint8_t value = 0; value < 255; value++) {
-        for (uint8_t chan = 0; chan < 12; chan++) {
-            dispatcher(chan, value);
-        }
-        delay(10);
-    }
+
+    up();
+    down();
 }
 
 void dispatcher(uint8_t chan, uint8_t value) {
