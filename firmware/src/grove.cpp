@@ -9,34 +9,16 @@ void setup() {
     SPI.begin(); 
 }
 
-void up() {
-    for (uint value = 0; value < 255; value++) {
-        for (uint chan = 1; chan <= 12; chan++) {
-            dispatcher(chan, value);
-        }
-        delay(5);
-    }
-}
-
-void down() {
-    for (uint value = 0; value <= 255; value++) {
-        for (uint chan = 1; chan <= 12; chan++) {
-            dispatcher(chan, 255-value);
-        }
-        delay(5);
-    }
-}
-
-
-
 void loop() {
-    // addRandomDrip();
-    // advanceRestDrips();
-
-    up();
-    down();
+    addRandomDrip();
+    advanceRestDrips();
 }
 
+/**
+ * Set the analog output on the dispatcher board.
+ * Channels are numbered 1 to 12 inclusive (THEY DON'T START AT ZERO !!) 
+ * value is 0-255 range analog output of the dac/LED brightness
+ */
 void dispatcher(uint8_t chan, uint8_t value) {
     // take the SS pin low to select the chip:
     SPI.beginTransaction(dispatcherSPISettings);
