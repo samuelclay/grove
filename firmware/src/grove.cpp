@@ -46,22 +46,28 @@ void addRandomDrip() {
     float progress = 0;
     
     if (dripCount) {
-        int latestDripStart = dripStarts[(dripCount % DRIP_LIMIT)-1];
+        int latestDripIndex = (dripCount % DRIP_LIMIT) - 1;
+        if (latestDripIndex < 0) latestDripIndex = DRIP_LIMIT - 1;
+        int latestDripStart = dripStarts[latestDripIndex];
         progress = (millis() - latestDripStart) / float(REST_DRIP_TRIP_MS);
 
-        if (progress <= (REST_DRIP_WIDTH*2/float(ledsPerStrip))) return;
+        if (progress <= ((REST_DRIP_WIDTH_MAX+REST_DRIP_WIDTH_MIN)/float(ledsPerStrip))) return;
     }
     
     if (!dripCount || random(0, floor(250 * max(1.f - progress, 1))) <= 1) {
         dripStarts[dripCount % DRIP_LIMIT] = millis();
         dripColors[dripCount % DRIP_LIMIT] = randomGreen();
+        dripWidth[dripCount % DRIP_LIMIT] = random(REST_DRIP_WIDTH_MIN, REST_DRIP_WIDTH_MAX);
         dripCount++;
     }
 }
+
 void advanceRestDrips() {
     for (unsigned int d=0; d < min(dripCount, DRIP_LIMIT); d++) {
         unsigned int dripStart = dripStarts[d];
-        if (dripStart < millis() - float(REST_DRIP_TRIP_MS)) continue;
+        // The 1.1 is to ensure that the tail of each drip disappears, since
+        // this only considers the position of the head of the drip.
+        if (dripStart < millis() - float(REST_DRIP_TRIP_MS)*1.1) continue;
         unsigned int dripColor = dripColors[d];
 
         drawDrip(d, dripStart, dripColor);
@@ -73,9 +79,10 @@ void advanceRestDrips() {
 void drawDrip(int d, int dripStart, int dripColor) {
     float progress = (millis() - dripStart) / float(REST_DRIP_TRIP_MS);
     int head = 0;
-    int tail = REST_DRIP_WIDTH;
+    int tail = dripWidth[d];
     double currentLed = 0;
     double headFractional = modf(progress * ledsPerStrip, &currentLed);
+    currentLed = ledsPerStrip - currentLed;
 
     int baseColor = dripColor;
     int color = 0;
@@ -84,7 +91,8 @@ void drawDrip(int d, int dripStart, int dripColor) {
     uint8_t b = ((baseColor & 0x0000FF) >> 0) * headFractional;
 	color = ((r<<16)&0xFF0000) | ((g<<8)&0x00FF00) | ((b<<0)&0x0000FF);
 
-    leds.setPixel(max(currentLed+1, head), color);
+    // First pixel is the fractional fader
+    leds.setPixel(max(currentLed-1, head), color);
     double tailFractional = (1 - REST_DRIP_DECAY) * (1 - headFractional);
 
     for (int i=head; i <= tail; i++) {
@@ -94,26 +102,29 @@ void drawDrip(int d, int dripStart, int dripColor) {
         uint8_t b = ((color & 0x0000FF) >> 0) * (i == tail ? tailFractional : 1 - REST_DRIP_DECAY*i/tail);
     	color = ((r<<16)&0xFF0000) | ((g<<8)&0x00FF00) | ((b<<0)&0x0000FF);
 
-        leds.setPixel(currentLed-i, color);
+        leds.setPixel(currentLed+i, color);
     }
 
-    leds.setPixel(currentLed-tail-1, 0);
+    leds.setPixel(currentLed+tail+1, 0);
 }
 
 int randomGreen() {
     int greens[] = {
-        0x3BF323,
-        0x58AB46,
-        0x4AF023,
-        0x45DB00,
-        0x36CD00,
-        0x56EE00,
-        0x5CFC00,
-        0x5FDA45,
-        0x45DD32,
-        0x42E632,
-        0x57EA3A,
-        0x39BD02
+        0x36CD00, // Light green
+        0x06FD00, // Pure green
+        0x06CD00, // Bright green
+        0x8CCC00, // Green-Yellowish
+        0xACEC00, // Yellowish-Green
+        0x45DB06, // Teal green
+        0x29BD06 // Seafoam green
     };
+        // 0x3BF323,
+        // 0x58AB46,
+        // 0x4AF023,
+        // 0x5FDA45,
+        // 0x45DD32,
+        // 0x42E632,
+        // 0x57EA3A,
+
     return greens[random(0, sizeof(greens)/sizeof(int))];
 }
