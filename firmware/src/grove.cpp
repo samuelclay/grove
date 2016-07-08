@@ -1,9 +1,9 @@
 #include "grove.h"
 
 void setup() { 
-    // leds.begin();
-    // leds.show();
-    // randomSeed(analogRead(0));
+    leds.begin();
+    leds.show();
+    randomSeed(analogRead(0));
 
     pinMode (slaveSelectPin, OUTPUT);
     SPI.begin(); 
