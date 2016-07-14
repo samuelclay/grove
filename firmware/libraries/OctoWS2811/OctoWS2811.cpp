@@ -84,10 +84,10 @@ void OctoWS2811::begin(void)
 	
 	// configure the 8 output pins
 	GPIOD_PCOR = 0xFF;
-	pinMode(2, OUTPUT);	// strip #1
-	pinMode(14, OUTPUT);	// strip #2
-    // pinMode(7, OUTPUT);    // strip #3
-    // pinMode(8, OUTPUT);    // strip #4
+    // pinMode(2, OUTPUT);    // strip #1
+    // pinMode(14, OUTPUT);    // strip #2
+    pinMode(7, OUTPUT);    // strip #3
+    pinMode(8, OUTPUT);    // strip #4
     // pinMode(6, OUTPUT);    // strip #5
     // pinMode(20, OUTPUT);    // strip #6
     // pinMode(21, OUTPUT);    // strip #7

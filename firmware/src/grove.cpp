@@ -92,7 +92,7 @@ void drawDrip(int d, int dripStart, int dripColor) {
 	color = ((r<<16)&0xFF0000) | ((g<<8)&0x00FF00) | ((b<<0)&0x0000FF);
 
     // First pixel is the fractional fader
-    leds.setPixel(max(currentLed-1, head), color);
+    leds.setPixel(720*2+max(currentLed-1, head), color);
     double tailFractional = (1 - REST_DRIP_DECAY) * (1 - headFractional);
 
     for (int i=head; i <= tail; i++) {
@@ -102,10 +102,10 @@ void drawDrip(int d, int dripStart, int dripColor) {
         uint8_t b = ((color & 0x0000FF) >> 0) * (i == tail ? tailFractional : 1 - REST_DRIP_DECAY*i/tail);
     	color = ((r<<16)&0xFF0000) | ((g<<8)&0x00FF00) | ((b<<0)&0x0000FF);
 
-        leds.setPixel(currentLed+i, color);
+        leds.setPixel(720*2+currentLed+i, color);
     }
 
-    leds.setPixel(currentLed+tail+1, 0);
+    leds.setPixel(720*2+currentLed+tail+1, 0);
 }
 
 int randomGreen() {
