@@ -1,0 +1,12 @@
+Qty,partname,description,lib
+0,"ADD8704","","grove-sensor-cache"
+0,"C","Unpolarized capacitor","device"
+0,"CONN_01X01","Connector 01x01","conn"
+0,"CONN_01X06","Connector 01x06","conn"
+0,"LED","","device"
+0,"MCP1700","","grove-sensor-cache"
+0,"Q_NPN_BEC","Transistor NPN (general)","device"
+0,"R","Resistor","device"
+0,"SI1143","","grove-sensor-cache"
+0,"Teensy_3.1","","teensy_3.1"
+0,"WS2812B","","grove-sensor-cache"
