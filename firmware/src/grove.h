@@ -14,7 +14,8 @@ const int slaveSelectPin = 10;
 // ===========
 
 // A single 1m strip is 144 LEDs/m. 720 = 5m.
-const int ledsPerStrip = 720;
+// const int ledsPerStrip = 720;
+const int ledsPerStrip = 432;
 
 DMAMEM int displayMemory[ledsPerStrip*6];
 int drawingMemory[ledsPerStrip*6];
@@ -27,18 +28,24 @@ const int REST_DRIP_WIDTH_MAX = 20;
 // Amount of color fade from front-to-back of each drip.
 // Can probably increase this to 0.64 during Burning Man.
 const double REST_DRIP_DECAY = 0.56;
+const double BREATH_DECAY = 0.56;
 
 // Time taken for drip to traverse LEDs
-const unsigned long REST_DRIP_TRIP_MS = 60000;
+const unsigned long REST_DRIP_TRIP_MS = 30000;
+const unsigned long BREATH_TRIP_MS = 15000;
 
-unsigned long beginTime = 0;
 uint32_t dripCount = 0;
+uint32_t breathCount = 0;
 
 // This limit is responsible for how much memory the drips take.
 const int DRIP_LIMIT = 20;
-double dripStarts[DRIP_LIMIT];
+unsigned int dripStarts[DRIP_LIMIT];
 unsigned int dripColors[DRIP_LIMIT];
 unsigned int dripWidth[DRIP_LIMIT];
+
+const int BREATH_LIMIT = 20;
+unsigned int breathStarts[BREATH_LIMIT];
+unsigned int breathWidth[DRIP_LIMIT];
 
 // ========
 // = LEDs =
@@ -58,8 +65,11 @@ SPISettings dispatcherSPISettings(1e6, MSBFIRST, SPI_MODE3);
 // =============
 
 void drawDrip(int d, int dripStart, int color);
+void drawBreath(int b, int breathStart);
 void addRandomDrip();
+void addBreath();
 void advanceRestDrips();
+void advanceBreaths();
 int randomGreen();
 void dispatcher(uint8_t chan, uint8_t value);
 uint8_t flipByte(uint8_t val);
