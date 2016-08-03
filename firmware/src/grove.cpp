@@ -9,6 +9,28 @@ void setup() {
     SPI.begin(); 
 
     Serial.begin(9600); // USB is always 12 Mbit/sec
+    
+    // This has the effect of running through a pulsating red, then green, then blue. Used to test dispatcher.
+    for (int chan_group=0; chan_group < 4; chan_group++) {
+        // Raise light for single colors at a time (in channel groups)
+        for (int i=0; i < 255; i++) {
+            for (int c=1; c <= 12; c++) {
+                if ((c-1) % 4 == chan_group) { // All the reds, then the greens, then the blues
+                    dispatcher(c, i);
+                }
+            }
+            delay(1);
+        }
+        // Lower light
+        for (int i=255; i > 0; i--) {
+            for (int c=1; c <= 12; c++) {
+                if ((c-1) % 4 == chan_group) {
+                    dispatcher(c, i);
+                }
+            }
+            delay(1);
+        }
+    }
 }
 
 void loop() {
@@ -105,6 +127,9 @@ void addBreath() {
         breathWidth[b] = 1;
         breathCount++;
         activeBreath = breathCount;
+        for (int c=1; c <= 12; c++) {
+            dispatcher(c, c > 8 ? 255 : 0);
+        }
     }
 
     if (!newBreath && hasActiveBreath()) {
@@ -118,6 +143,13 @@ void addBreath() {
         Serial.print(": ");
         Serial.print(breathWidth[latestBreathIndex]);
         Serial.print(": ");
+        for (int c=1; c <= 12; c++) {
+            dispatcher(c, c <= 4 ? 255 : 0);
+        }
+    } else if (!newBreath) {
+        for (int c=1; c <= 12; c++) {
+            dispatcher(c, (c > 4 && c <= 8) ? 255 : 0);
+        }
     }
     
 }
@@ -187,8 +219,8 @@ void drawBreath(int b, int breathStart) {
     
     int baseColor = 0xFFFFFF;
     int color = 0;
-    uint8_t red = ((baseColor & 0xFF0000) >> 16) * headFractional;
-    uint8_t green = ((baseColor & 0x00FF00) >> 8) * headFractional;
+    uint8_t red = ((baseColor & 0x020000) >> 16) * headFractional;
+    uint8_t green = ((baseColor & 0x000200) >> 8) * headFractional;
     uint8_t blue = ((baseColor & 0x0000FF) >> 0) * headFractional;
     color = ((red<<16)&0xFF0000) | ((green<<8)&0x00FF00) | ((blue<<0)&0x0000FF);
 
@@ -204,8 +236,8 @@ void drawBreath(int b, int breathStart) {
     
     for (int i=head; i <= tail; i++) {
         color = baseColor;
-        uint8_t r = ((color & 0xFF0000) >> 16) * (i == tail ? tailFractional : 1 - BREATH_DECAY*i/tail);
-        uint8_t g = ((color & 0x00FF00) >> 8) * (i == tail ? tailFractional : 1 - BREATH_DECAY*i/tail);
+        uint8_t r = ((color & 0x020000) >> 16) * (i == tail ? tailFractional : 1 - BREATH_DECAY*i/tail);
+        uint8_t g = ((color & 0x000200) >> 8) * (i == tail ? tailFractional : 1 - BREATH_DECAY*i/tail);
         uint8_t b = ((color & 0x0000FF) >> 0) * (i == tail ? tailFractional : 1 - BREATH_DECAY*i/tail);
         color = ((r<<16)&0xFF0000) | ((g<<8)&0x00FF00) | ((b<<0)&0x0000FF);
 
