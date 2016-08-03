@@ -7,6 +7,8 @@ void setup() {
 
     pinMode (slaveSelectPin, OUTPUT);
     SPI.begin(); 
+
+    Serial.begin(9600); // USB is always 12 Mbit/sec
 }
 
 void loop() {
@@ -16,7 +18,7 @@ void loop() {
     addBreath();
     advanceBreaths();
     
-    leds.show();
+    leds.show();    
 }
 
 /**
@@ -49,10 +51,11 @@ uint8_t flipByte(uint8_t val) {
 void addRandomDrip() {
     // Wait until drip is far enough away from beginning
     float progress = 0;
+    int d = dripCount % DRIP_LIMIT;
     
     if (dripCount) {
-        int latestDripIndex = (dripCount % DRIP_LIMIT) - 1;
-        if (latestDripIndex < 0) latestDripIndex = DRIP_LIMIT - 1;
+        int latestDripIndex = d - 1;
+        if (latestDripIndex < 0) latestDripIndex = DRIP_LIMIT - 1; // wrap around
         int latestDripStart = dripStarts[latestDripIndex];
         progress = (millis() - latestDripStart) / float(REST_DRIP_TRIP_MS);
         
@@ -61,14 +64,61 @@ void addRandomDrip() {
     }
     
     if (!dripCount || random(0, floor(250 * max(1.f - progress, 1))) <= 1) {
-        dripStarts[dripCount % DRIP_LIMIT] = millis();
-        dripColors[dripCount % DRIP_LIMIT] = randomGreen();
-        dripWidth[dripCount % DRIP_LIMIT] = random(REST_DRIP_WIDTH_MIN, REST_DRIP_WIDTH_MAX);
+        dripStarts[d] = millis();
+        dripColors[d] = randomGreen();
+        dripWidth[d] = random(REST_DRIP_WIDTH_MIN, REST_DRIP_WIDTH_MAX);
         dripCount++;
     }
 }
 
+bool hasNewBreath() {
+    if (activeBreath != -1) return false;
+    
+    if (millis() > lastNewBreathMs) {
+        endActiveBreathMs = millis() + random(500, 1250);
+        lastNewBreathMs = endActiveBreathMs + random(1000, 2000);
+        return true;
+    }
+    
+    return false;
+}
+
+bool hasActiveBreath() {
+    if (activeBreath == -1) return false;
+    
+    if (millis() < endActiveBreathMs) {
+        return true;
+    }
+    
+    activeBreath = -1;
+    return false;
+}
+
 void addBreath() {
+    int b = breathCount % BREATH_LIMIT;
+    bool newBreath = hasNewBreath();
+    
+    if (newBreath) {
+        Serial.print(" ---> New breath: ");
+        Serial.println(b);
+        breathStarts[b] = millis();
+        breathWidth[b] = 1;
+        breathCount++;
+        activeBreath = breathCount;
+    }
+
+    if (!newBreath && hasActiveBreath()) {
+        int latestBreathIndex = b - 1;
+        if (latestBreathIndex < 0) latestBreathIndex = BREATH_LIMIT - 1; // wrap around
+        int latestBreathStart = breathStarts[latestBreathIndex];
+        float progress = float(millis() - latestBreathStart) / float(BREATH_TRIP_MS);
+        breathWidth[latestBreathIndex] = ceil(progress * ledsPerStrip);
+        Serial.print(" ---> Active breath #");
+        Serial.print(latestBreathIndex);
+        Serial.print(": ");
+        Serial.print(breathWidth[latestBreathIndex]);
+        Serial.print(": ");
+    }
     
 }
 
@@ -145,7 +195,13 @@ void drawBreath(int b, int breathStart) {
     // First pixel is the fractional head fader
     leds.setPixel(ledsPerStrip*2+currentLed+1, color);
     double tailFractional = (1 - BREATH_DECAY) * (1 - headFractional);
-
+    Serial.print(" ---> Breath #");
+    Serial.print(b);
+    Serial.print(": ");
+    Serial.print(currentLed);
+    Serial.print(" -> ");
+    Serial.println(tail);
+    
     for (int i=head; i <= tail; i++) {
         color = baseColor;
         uint8_t r = ((color & 0xFF0000) >> 16) * (i == tail ? tailFractional : 1 - BREATH_DECAY*i/tail);
@@ -155,8 +211,10 @@ void drawBreath(int b, int breathStart) {
 
         leds.setPixel(ledsPerStrip*2+currentLed-i, color);
     }
-
-    leds.setPixel(ledsPerStrip*2+currentLed-tail-1, 0);
+    
+    for (int i=1; i <= 5; i++) {
+        leds.setPixel(ledsPerStrip*2+currentLed-tail-i, 0);
+    }
 }
 
 int randomGreen() {

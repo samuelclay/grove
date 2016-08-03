@@ -46,6 +46,9 @@ unsigned int dripWidth[DRIP_LIMIT];
 const int BREATH_LIMIT = 20;
 unsigned int breathStarts[BREATH_LIMIT];
 unsigned int breathWidth[DRIP_LIMIT];
+int activeBreath = -1;
+unsigned int lastNewBreathMs = 0;
+unsigned int endActiveBreathMs = 0;
 
 // ========
 // = LEDs =
