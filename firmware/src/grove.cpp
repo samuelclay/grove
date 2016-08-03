@@ -10,11 +10,15 @@ void setup() {
 
     Serial.begin(9600); // USB is always 12 Mbit/sec
     
+    for (uint8_t c=1; c <= 12; c++) {
+        dispatcher(c, 0);
+    }
+    
     // This has the effect of running through a pulsating red, then green, then blue. Used to test dispatcher.
-    for (int chan_group=0; chan_group < 4; chan_group++) {
+    for (uint8_t chan_group=0; chan_group < 4; chan_group++) {
         // Raise light for single colors at a time (in channel groups)
-        for (int i=0; i < 255; i++) {
-            int c = 1;
+        for (uint8_t i=0; i < 255; i++) {
+            uint8_t c = 1;
             // for (int c=1; c <= 12; c++) {
                 // if ((c-1) % 3 == chan_group) { // All the reds, then the greens, then the blues
                     dispatcher(c, i);
@@ -23,8 +27,8 @@ void setup() {
             delay(1);
         }
         // Lower light
-        for (int i=255; i > 0; i--) {
-            int c = 1;
+        for (uint8_t i=255; i > 0; i--) {
+            uint8_t c = 1;
             // for (int c=1; c <= 12; c++) {
             //     if ((c-1) % 3 == chan_group) {
                     dispatcher(c, i);
