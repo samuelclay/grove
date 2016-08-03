@@ -14,20 +14,22 @@ void setup() {
     for (int chan_group=0; chan_group < 4; chan_group++) {
         // Raise light for single colors at a time (in channel groups)
         for (int i=0; i < 255; i++) {
-            for (int c=1; c <= 12; c++) {
-                if ((c-1) % 4 == chan_group) { // All the reds, then the greens, then the blues
+            int c = 1;
+            // for (int c=1; c <= 12; c++) {
+                // if ((c-1) % 3 == chan_group) { // All the reds, then the greens, then the blues
                     dispatcher(c, i);
-                }
-            }
+                // }
+            // }
             delay(1);
         }
         // Lower light
         for (int i=255; i > 0; i--) {
-            for (int c=1; c <= 12; c++) {
-                if ((c-1) % 4 == chan_group) {
+            int c = 1;
+            // for (int c=1; c <= 12; c++) {
+            //     if ((c-1) % 3 == chan_group) {
                     dispatcher(c, i);
-                }
-            }
+            //     }
+            // }
             delay(1);
         }
     }
@@ -128,7 +130,7 @@ void addBreath() {
         breathCount++;
         activeBreath = breathCount % BREATH_LIMIT;
         for (int c=1; c <= 12; c++) {
-            dispatcher(c, 0);
+            // dispatcher(c, 0);
         }
     }
 
