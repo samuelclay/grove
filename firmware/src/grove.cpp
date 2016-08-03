@@ -10,27 +10,27 @@ void setup() {
 
     Serial.begin(9600); // USB is always 12 Mbit/sec
     
-    // // This has the effect of running through a pulsating red, then green, then blue. Used to test dispatcher.
-    // for (int chan_group=0; chan_group < 4; chan_group++) {
-    //     // Raise light for single colors at a time (in channel groups)
-    //     for (int i=0; i < 255; i++) {
-    //         for (int c=1; c <= 12; c++) {
-    //             if ((c-1) % 4 == chan_group) { // All the reds, then the greens, then the blues
-    //                 dispatcher(c, i);
-    //             }
-    //         }
-    //         delay(1);
-    //     }
-    //     // Lower light
-    //     for (int i=255; i > 0; i--) {
-    //         for (int c=1; c <= 12; c++) {
-    //             if ((c-1) % 4 == chan_group) {
-    //                 dispatcher(c, i);
-    //             }
-    //         }
-    //         delay(1);
-    //     }
-    // }
+    // This has the effect of running through a pulsating red, then green, then blue. Used to test dispatcher.
+    for (int chan_group=0; chan_group < 4; chan_group++) {
+        // Raise light for single colors at a time (in channel groups)
+        for (int i=0; i < 255; i++) {
+            for (int c=1; c <= 12; c++) {
+                if ((c-1) % 4 == chan_group) { // All the reds, then the greens, then the blues
+                    dispatcher(c, i);
+                }
+            }
+            delay(1);
+        }
+        // Lower light
+        for (int i=255; i > 0; i--) {
+            for (int c=1; c <= 12; c++) {
+                if ((c-1) % 4 == chan_group) {
+                    dispatcher(c, i);
+                }
+            }
+            delay(1);
+        }
+    }
 }
 
 void loop() {
@@ -126,7 +126,7 @@ void addBreath() {
         breathStarts[b] = millis();
         breathWidth[b] = 1;
         breathCount++;
-        activeBreath = breathCount;
+        activeBreath = breathCount % BREATH_LIMIT;
         for (int c=1; c <= 12; c++) {
             dispatcher(c, 0);
         }
@@ -180,26 +180,19 @@ void drawDrip(int d, int dripStart, int dripColor) {
     int tail = dripWidth[d];
     double currentLed = 0;
     double headFractional = modf(progress * ledsPerStrip, &currentLed);
+    double tailFractional = (1 - REST_DRIP_DECAY) * (1 - headFractional);
     currentLed = ledsPerStrip - currentLed;
 
     int baseColor = dripColor;
-    int color = 0;
-    uint8_t r = ((baseColor & 0xFF0000) >> 16) * headFractional;
-    uint8_t g = ((baseColor & 0x00FF00) >> 8) * headFractional;
-    uint8_t b = ((baseColor & 0x0000FF) >> 0) * headFractional;
-    color = ((r<<16)&0xFF0000) | ((g<<8)&0x00FF00) | ((b<<0)&0x0000FF);
-
-    // First pixel is the fractional fader
-    if (currentLed > 0) {
-        leds.setPixel(ledsPerStrip*2+currentLed-1, color);
-    }
-    double tailFractional = (1 - REST_DRIP_DECAY) * (1 - headFractional);
+    int color;
 
     for (int i=head; i <= tail; i++) {
+        // Head and tail pixel is the fractional fader
         color = baseColor;
-        uint8_t r = ((color & 0xFF0000) >> 16) * (i == tail ? tailFractional : 1 - REST_DRIP_DECAY*i/tail);
-        uint8_t g = ((color & 0x00FF00) >> 8) * (i == tail ? tailFractional : 1 - REST_DRIP_DECAY*i/tail);
-        uint8_t b = ((color & 0x0000FF) >> 0) * (i == tail ? tailFractional : 1 - REST_DRIP_DECAY*i/tail);
+        double tailDecay = 1 - BREATH_DECAY*i/tail;
+        uint8_t r = ((color & 0xFF0000) >> 16) * (i == head ? headFractional : i == tail ? tailFractional : tailDecay);
+        uint8_t g = ((color & 0x00FF00) >> 8) * (i == head ? headFractional : i == tail ? tailFractional : tailDecay);
+        uint8_t b = ((color & 0x0000FF) >> 0) * (i == head ? headFractional : i == tail ? tailFractional : tailDecay);
         color = ((r<<16)&0xFF0000) | ((g<<8)&0x00FF00) | ((b<<0)&0x0000FF);
 
         leds.setPixel(ledsPerStrip*2+currentLed+i, color);
@@ -216,17 +209,10 @@ void drawBreath(int b, int breathStart) {
     int tail = breathWidth[b];
     double currentLed = 0;
     double headFractional = modf(progress * ledsPerStrip, &currentLed);
+    double tailFractional = (1 - BREATH_DECAY) * (1 - headFractional);
     
     int baseColor = 0xFFFFFF;
-    int color = 0;
-    uint8_t red = ((baseColor & 0x020000) >> 16) * headFractional;
-    uint8_t green = ((baseColor & 0x000200) >> 8) * headFractional;
-    uint8_t blue = ((baseColor & 0x0000FF) >> 0) * headFractional;
-    color = ((red<<16)&0xFF0000) | ((green<<8)&0x00FF00) | ((blue<<0)&0x0000FF);
-
-    // First pixel is the fractional head fader
-    leds.setPixel(ledsPerStrip*2+currentLed+1, color);
-    double tailFractional = (1 - BREATH_DECAY) * (1 - headFractional);
+    int color;
     Serial.print(" ---> Breath #");
     Serial.print(b);
     Serial.print(": ");
@@ -235,10 +221,12 @@ void drawBreath(int b, int breathStart) {
     Serial.println(tail);
     
     for (int i=head; i <= tail; i++) {
+        // Head and tail pixel is the fractional fader
         color = baseColor;
-        uint8_t r = ((color & 0x020000) >> 16) * (i == tail ? tailFractional : 1 - BREATH_DECAY*i/tail);
-        uint8_t g = ((color & 0x000200) >> 8) * (i == tail ? tailFractional : 1 - BREATH_DECAY*i/tail);
-        uint8_t b = ((color & 0x0000FF) >> 0) * (i == tail ? tailFractional : 1 - BREATH_DECAY*i/tail);
+        double tailDecay = 1 - BREATH_DECAY*i/tail;
+        uint8_t r = ((color & 0x020000) >> 16) * (i == head ? headFractional : i == tail ? tailFractional : tailDecay);
+        uint8_t g = ((color & 0x000200) >> 8) * (i == head ? headFractional : i == tail ? tailFractional : tailDecay);
+        uint8_t b = ((color & 0x000036) >> 0) * (i == head ? headFractional : i == tail ? tailFractional : tailDecay);
         color = ((r<<16)&0xFF0000) | ((g<<8)&0x00FF00) | ((b<<0)&0x0000FF);
 
         leds.setPixel(ledsPerStrip*2+currentLed-i, color);

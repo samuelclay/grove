@@ -49,6 +49,8 @@ unsigned int breathWidth[DRIP_LIMIT];
 int activeBreath = -1;
 unsigned int lastNewBreathMs = 0;
 unsigned int endActiveBreathMs = 0;
+unsigned int furthestBreathPosition = 0;
+unsigned int newestBreathPosition = 0;
 
 // ========
 // = LEDs =
