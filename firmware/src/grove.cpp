@@ -10,27 +10,27 @@ void setup() {
 
     Serial.begin(9600); // USB is always 12 Mbit/sec
     
-    // This has the effect of running through a pulsating red, then green, then blue. Used to test dispatcher.
-    for (int chan_group=0; chan_group < 4; chan_group++) {
-        // Raise light for single colors at a time (in channel groups)
-        for (int i=0; i < 255; i++) {
-            for (int c=1; c <= 12; c++) {
-                if ((c-1) % 4 == chan_group) { // All the reds, then the greens, then the blues
-                    dispatcher(c, i);
-                }
-            }
-            delay(1);
-        }
-        // Lower light
-        for (int i=255; i > 0; i--) {
-            for (int c=1; c <= 12; c++) {
-                if ((c-1) % 4 == chan_group) {
-                    dispatcher(c, i);
-                }
-            }
-            delay(1);
-        }
-    }
+    // // This has the effect of running through a pulsating red, then green, then blue. Used to test dispatcher.
+    // for (int chan_group=0; chan_group < 4; chan_group++) {
+    //     // Raise light for single colors at a time (in channel groups)
+    //     for (int i=0; i < 255; i++) {
+    //         for (int c=1; c <= 12; c++) {
+    //             if ((c-1) % 4 == chan_group) { // All the reds, then the greens, then the blues
+    //                 dispatcher(c, i);
+    //             }
+    //         }
+    //         delay(1);
+    //     }
+    //     // Lower light
+    //     for (int i=255; i > 0; i--) {
+    //         for (int c=1; c <= 12; c++) {
+    //             if ((c-1) % 4 == chan_group) {
+    //                 dispatcher(c, i);
+    //             }
+    //         }
+    //         delay(1);
+    //     }
+    // }
 }
 
 void loop() {
@@ -128,7 +128,7 @@ void addBreath() {
         breathCount++;
         activeBreath = breathCount;
         for (int c=1; c <= 12; c++) {
-            dispatcher(c, c > 8 ? 255 : 0);
+            dispatcher(c, 0);
         }
     }
 
@@ -144,11 +144,11 @@ void addBreath() {
         Serial.print(breathWidth[latestBreathIndex]);
         Serial.print(": ");
         for (int c=1; c <= 12; c++) {
-            dispatcher(c, c <= 4 ? 255 : 0);
+            // dispatcher(c, (c-1)%3==1 ? 255 : 0);
         }
     } else if (!newBreath) {
         for (int c=1; c <= 12; c++) {
-            dispatcher(c, (c > 4 && c <= 8) ? 255 : 0);
+            // dispatcher(c, (c > 4 && c <= 8) ? 255 : 0);
         }
     }
     
