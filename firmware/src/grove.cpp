@@ -41,7 +41,9 @@ void loop() {
     addRandomDrip();
     advanceRestDrips();
     
-    // addBreath();
+    if (millis() % 60000 < 15000) {
+        addBreath();
+    }
     advanceBreaths();
     
     runLeaves();
@@ -91,13 +93,14 @@ void addRandomDrip() {
         if (progress <= ((REST_DRIP_WIDTH_MAX+REST_DRIP_WIDTH_MIN)/float(ledsPerStrip))) return;
     }
     
-    if (!dripCount || random(0, (1000 * max(1.f - progress, 1))) <= 1) {
+    if (!dripCount || random(0, (250 * max(1.f - progress, 1))) <= 1) {
         if (ceil(progress * ledsPerStrip) < furthestBreathPosition) {
             return;
         }
         dripStarts[d] = millis();
         dripColors[d] = randomGreen();
         dripWidth[d] = random(REST_DRIP_WIDTH_MIN, REST_DRIP_WIDTH_MAX);
+        dripEaten[d] = false;
         dripCount++;
     }
 }
@@ -106,8 +109,8 @@ bool hasNewBreath() {
     if (activeBreath != -1) return false;
     
     if (millis() > lastNewBreathMs) {
-        endActiveBreathMs = millis() + random(500, 1250);
-        lastNewBreathMs = endActiveBreathMs + random(1000, 5000);
+        endActiveBreathMs = millis() + random(300, 1250);
+        lastNewBreathMs = endActiveBreathMs + random(1000, 3000);
         return true;
     }
     
@@ -166,6 +169,7 @@ void advanceRestDrips() {
         // this only considers the position of the head of the drip.
         float progress = (millis() - dripStart) / float(REST_DRIP_TRIP_MS);
         if (progress >= 1.1) continue;
+        if (dripEaten[d]) continue;
         unsigned int dripColor = dripColors[d];
 
         drawDrip(d, dripStart, dripColor);
@@ -203,7 +207,7 @@ void drawDrip(int d, int dripStart, int dripColor) {
     for (int i=head; i <= tail; i++) {
         // Head and tail pixel is the fractional fader
         color = baseColor;
-        double tailDecay = 1 - BREATH_DECAY*i/tail;
+        double tailDecay = 1 - REST_DRIP_DECAY*i/tail;
         uint8_t r = ((color & 0xFF0000) >> 16) * (i == head ? headFractional : i == tail ? tailFractional : tailDecay);
         uint8_t g = ((color & 0x00FF00) >> 8) * (i == head ? headFractional : i == tail ? tailFractional : tailDecay);
         uint8_t b = ((color & 0x0000FF) >> 0) * (i == head ? headFractional : i == tail ? tailFractional : tailDecay);
@@ -216,7 +220,7 @@ void drawDrip(int d, int dripStart, int dripColor) {
     }
     
     if (currentLed+tail < furthestBreathPosition) {
-        dripStarts[d] = 0;
+        dripEaten[d] = true;
     }
     for (int i=1; i <= 5; i++) {
         leds.setPixel(ledsPerStrip*2+currentLed+tail+i, 0);
@@ -283,7 +287,7 @@ void runLeaves() {
         int sinPos = multiplier * 360.0f;
         float progress = sinTable[sinPos];
         int center = 100;
-        int width = 25;
+        int width = 50;
         int brightness = center + width*progress;
 
         
@@ -293,39 +297,30 @@ void runLeaves() {
             if (latestDripIndex < 0) latestDripIndex = DRIP_LIMIT - 1; // wrap around
             float boost = 255 - center - width;
             if (millis() - dripStarts[latestDripIndex] < boostDuration) {
+                // Linear boost up to max brightness
                 progress = ((millis() - dripStarts[latestDripIndex]) / boostDuration);
                 boost = boost * progress;
                 brightness += boost;
-                // Serial.print(" ! Boost: ");
-                // Serial.print(boost);
-                // Serial.print(",");
-                // Serial.print(progress);
-                // Serial.print(",");
-                // Serial.println(brightness);
             } else if (millis() - dripStarts[latestDripIndex] - boostDuration < boostDuration) {
+                // Hold boost
                 brightness += boost;
             } else if (millis() - dripStarts[latestDripIndex] - 2*boostDuration < boostDuration) {
+                // Linear boost down back to baseline
                 progress = ((millis() - dripStarts[latestDripIndex] - 2*boostDuration) / boostDuration);
                 boost = boost * (1 - progress);
                 brightness += boost;
-                Serial.print(" ! Boost return: ");
-                Serial.print(boost);
-                Serial.print(",");
-                Serial.print(progress);
-                Serial.print(",");
-                Serial.println(brightness);
             }
         }
 
-        Serial.print(" ---> Leaves: ");
+        // Serial.print(" ---> Leaves: ");
         Serial.print(brightness);
-        Serial.print(" (");
-        Serial.print(progress);
-        Serial.println(")");
+        Serial.print(" ");
+        // Serial.println(")");
         
         dispatcher(c, (c-1)%3==0 ? brightness : 0);
     }
     
+    Serial.println("");
 }
 
 int randomGreen() {
