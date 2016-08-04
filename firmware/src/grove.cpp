@@ -44,6 +44,8 @@ void loop() {
     addBreath();
     advanceBreaths();
     
+    runLeaves();
+    
     leds.show();    
 }
 
@@ -89,7 +91,7 @@ void addRandomDrip() {
         if (progress <= ((REST_DRIP_WIDTH_MAX+REST_DRIP_WIDTH_MIN)/float(ledsPerStrip))) return;
     }
     
-    if (!dripCount || random(0, floor(250 * max(1.f - progress, 1))) <= 1) {
+    if (!dripCount || random(0, - (250 * max(1.f - progress, 1))) <= 1) {
         if (ceil(progress * ledsPerStrip) < furthestBreathPosition) {
             return;
         }
@@ -138,23 +140,21 @@ void addBreath() {
     }
 
     if (!newBreath && hasActiveBreath()) {
+        // Still breathing, so extend breath
         int latestBreathIndex = b - 1;
         if (latestBreathIndex < 0) latestBreathIndex = BREATH_LIMIT - 1; // wrap around
         int latestBreathStart = breathStarts[latestBreathIndex];
         float progress = float(millis() - latestBreathStart) / float(BREATH_TRIP_MS);
+        
         breathWidth[latestBreathIndex] = ceil(progress * ledsPerStrip);
+        
         // Serial.print(" ---> Active breath #");
         // Serial.print(latestBreathIndex);
         // Serial.print(": ");
         // Serial.print(breathWidth[latestBreathIndex]);
         // Serial.print(": ");
-        for (int c=1; c <= 12; c++) {
-            dispatcher(c, (c-1)%3==0 ? 255 : 0);
-        }
     } else if (!newBreath) {
-        for (int c=1; c <= 12; c++) {
-            dispatcher(c, (c-1)%3==1 ? 255 : 0);
-        }
+        // Not actively breathing
     }
     
 }
@@ -272,6 +272,31 @@ void drawBreath(int b, int breathStart) {
     for (int i=1; i <= 5; i++) {
         leds.setPixel(ledsPerStrip*2+currentLed-tail-i, 0);
     }
+}
+
+void runLeaves() {        
+    for (int c=1; c <= 12; c++) {
+        int channelOffset = millis() + ((c<=4 ? 0 : c <= 8 ? 1 : c <= 12 ? 2 : 3) * LEAVES_REST_MS/4);
+        float multiplier = (channelOffset % LEAVES_REST_MS) / float(LEAVES_REST_MS);
+        int sinPos = multiplier * 360.0f;
+        float progress = sinTable[sinPos];
+        int center = 125;
+        int width = 75;
+        int brightness = center + width*progress;
+    
+        Serial.print(" ---> Leaves: ");
+        Serial.print(brightness);
+        Serial.print(" (");
+        Serial.print(multiplier);
+        Serial.print(",");
+        Serial.print(sinPos);
+        Serial.print(",");
+        Serial.print(progress);
+        Serial.println(")");
+        
+        dispatcher(c, (c-1)%3==0 ? brightness : 0);
+    }
+    
 }
 
 int randomGreen() {

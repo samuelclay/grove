@@ -15,7 +15,7 @@ const int slaveSelectPin = 10;
 
 // A single 1m strip is 144 LEDs/m. 720 = 5m.
 // const int ledsPerStrip = 720;
-const int ledsPerStrip = 420;
+const int ledsPerStrip = 428;
 
 DMAMEM int displayMemory[ledsPerStrip*6];
 int drawingMemory[ledsPerStrip*6];
@@ -53,6 +53,9 @@ unsigned int endActiveBreathMs = 0;
 unsigned int furthestBreathPosition = 0;
 unsigned int newestBreathPosition = 0;
 
+// High current Leaves
+const int LEAVES_REST_MS = 2000;
+
 // ========
 // = LEDs =
 // ========
@@ -79,7 +82,7 @@ void advanceBreaths();
 int randomGreen();
 void dispatcher(uint8_t chan, uint8_t value);
 uint8_t flipByte(uint8_t val);
-
+void runLeaves();
 
 /**   
 * \par   
