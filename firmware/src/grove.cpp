@@ -41,7 +41,7 @@ void loop() {
     addRandomDrip();
     advanceRestDrips();
     
-    addBreath();
+    // addBreath();
     advanceBreaths();
     
     runLeaves();
@@ -91,7 +91,7 @@ void addRandomDrip() {
         if (progress <= ((REST_DRIP_WIDTH_MAX+REST_DRIP_WIDTH_MIN)/float(ledsPerStrip))) return;
     }
     
-    if (!dripCount || random(0, - (250 * max(1.f - progress, 1))) <= 1) {
+    if (!dripCount || random(0, (1000 * max(1.f - progress, 1))) <= 1) {
         if (ceil(progress * ledsPerStrip) < furthestBreathPosition) {
             return;
         }
@@ -193,12 +193,12 @@ void drawDrip(int d, int dripStart, int dripColor) {
     int baseColor = dripColor;
     int color;
 
-    Serial.print(" ---> Drip #");
-    Serial.print(d);
-    Serial.print(": ");
-    Serial.print(currentLed);
-    Serial.print(" < ");
-    Serial.println(furthestBreathPosition);
+    // Serial.print(" ---> Drip #");
+    // Serial.print(d);
+    // Serial.print(": ");
+    // Serial.print(currentLed);
+    // Serial.print(" < ");
+    // Serial.println(furthestBreathPosition);
 
     for (int i=head; i <= tail; i++) {
         // Head and tail pixel is the fractional fader
@@ -237,12 +237,12 @@ void drawBreath(int b, int breathStart) {
         furthestBreathPosition = breathPosition[b];
     }
 
-    Serial.print(" ---> Breath #");
-    Serial.print(b);
-    Serial.print(": ");
-    Serial.print(currentLed);
-    Serial.print(" >? ");
-    Serial.println(furthestBreathPosition);
+    // Serial.print(" ---> Breath #");
+    // Serial.print(b);
+    // Serial.print(": ");
+    // Serial.print(currentLed);
+    // Serial.print(" >? ");
+    // Serial.println(furthestBreathPosition);
     
     int baseColor = 0xFFFFFF;
     int color;
@@ -274,23 +274,52 @@ void drawBreath(int b, int breathStart) {
     }
 }
 
-void runLeaves() {        
+void runLeaves() {
+    float boostDuration = 500;
+    
     for (int c=1; c <= 12; c++) {
         int channelOffset = millis() + ((c<=4 ? 0 : c <= 8 ? 1 : c <= 12 ? 2 : 3) * LEAVES_REST_MS/4);
         float multiplier = (channelOffset % LEAVES_REST_MS) / float(LEAVES_REST_MS);
         int sinPos = multiplier * 360.0f;
         float progress = sinTable[sinPos];
-        int center = 125;
-        int width = 75;
+        int center = 100;
+        int width = 25;
         int brightness = center + width*progress;
-    
+
+        
+        if (dripCount) {
+            int d = dripCount % DRIP_LIMIT;
+            int latestDripIndex = d - 1;
+            if (latestDripIndex < 0) latestDripIndex = DRIP_LIMIT - 1; // wrap around
+            float boost = 255 - center - width;
+            if (millis() - dripStarts[latestDripIndex] < boostDuration) {
+                progress = ((millis() - dripStarts[latestDripIndex]) / boostDuration);
+                boost = boost * progress;
+                brightness += boost;
+                // Serial.print(" ! Boost: ");
+                // Serial.print(boost);
+                // Serial.print(",");
+                // Serial.print(progress);
+                // Serial.print(",");
+                // Serial.println(brightness);
+            } else if (millis() - dripStarts[latestDripIndex] - boostDuration < boostDuration) {
+                brightness += boost;
+            } else if (millis() - dripStarts[latestDripIndex] - 2*boostDuration < boostDuration) {
+                progress = ((millis() - dripStarts[latestDripIndex] - 2*boostDuration) / boostDuration);
+                boost = boost * (1 - progress);
+                brightness += boost;
+                Serial.print(" ! Boost return: ");
+                Serial.print(boost);
+                Serial.print(",");
+                Serial.print(progress);
+                Serial.print(",");
+                Serial.println(brightness);
+            }
+        }
+
         Serial.print(" ---> Leaves: ");
         Serial.print(brightness);
         Serial.print(" (");
-        Serial.print(multiplier);
-        Serial.print(",");
-        Serial.print(sinPos);
-        Serial.print(",");
         Serial.print(progress);
         Serial.println(")");
         
