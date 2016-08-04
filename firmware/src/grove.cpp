@@ -90,13 +90,20 @@ void addRandomDrip() {
         progress = (millis() - latestDripStart) / float(REST_DRIP_TRIP_MS);
         
         // Don't start a new drip if the latest drip isn't done coming out
-        if (progress <= ((REST_DRIP_WIDTH_MAX+REST_DRIP_WIDTH_MIN)/float(ledsPerStrip))) return;
-    }
-    
-    if (!dripCount || random(0, (250 * max(1.f - progress, 1))) <= 1) {
-        if (ceil(progress * ledsPerStrip) < furthestBreathPosition) {
+        if (progress <= ((REST_DRIP_WIDTH_MAX+REST_DRIP_WIDTH_MIN)/float(ledsPerStrip))) {
+            // Serial.println(" ---> Not starting drip, last not done yet.");
             return;
         }
+    }
+
+    // Serial.print(" ---> Drip progress: ");
+    // Serial.print(progress);
+    // Serial.print(" -- ");
+    // Serial.print(ceil(progress * ledsPerStrip));
+    // Serial.print(" < ");
+    // Serial.println(furthestBreathPosition);
+    
+    if (!dripCount || random(0, (250 * max(1.f - progress, 1))) <= 1) {
         dripStarts[d] = millis();
         dripColors[d] = randomGreen();
         dripWidth[d] = random(REST_DRIP_WIDTH_MIN, REST_DRIP_WIDTH_MAX);
@@ -287,7 +294,7 @@ void runLeaves() {
         int sinPos = multiplier * 360.0f;
         float progress = sinTable[sinPos];
         int center = 100;
-        int width = 50;
+        int width = 35;
         int brightness = center + width*progress;
 
         
@@ -313,14 +320,14 @@ void runLeaves() {
         }
 
         // Serial.print(" ---> Leaves: ");
-        Serial.print(brightness);
-        Serial.print(" ");
+        // Serial.print(brightness);
+        // Serial.print(" ");
         // Serial.println(")");
         
         dispatcher(c, (c-1)%3==0 ? brightness : 0);
     }
     
-    Serial.println("");
+    // Serial.println("");
 }
 
 int randomGreen() {
