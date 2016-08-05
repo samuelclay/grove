@@ -28,7 +28,7 @@ const int REST_DRIP_WIDTH_MAX = 20;
 // Amount of color fade from front-to-back of each drip.
 // Can probably increase this to 0.64 during Burning Man.
 const double REST_DRIP_DECAY = 0.64;
-const double BREATH_DECAY = 1.00;
+const double BREATH_DECAY = 0.95;
 
 // Time taken for drip to traverse LEDs
 const unsigned long REST_DRIP_TRIP_MS = 30000;

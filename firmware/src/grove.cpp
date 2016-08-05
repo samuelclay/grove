@@ -8,7 +8,7 @@ void setup() {
     pinMode (slaveSelectPin, OUTPUT);
     SPI.begin(); 
 
-    Serial.begin(9600); // USB is always 12 Mbit/sec
+    // Serial.begin(9600); // USB is always 12 Mbit/sec
     
     for (uint8_t c=1; c <= 12; c++) {
         dispatcher(c, 0);
