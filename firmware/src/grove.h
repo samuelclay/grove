@@ -1,6 +1,7 @@
 #include <OctoWS2811.h>
 #include <avr/power.h>
 #include <SPI.h>
+#include <QuadraticEase.h>
 
 // ===================
 // = Pin Definitions =
@@ -31,8 +32,8 @@ const double REST_DRIP_DECAY = 0.64;
 const double BREATH_DECAY = 0.95;
 
 // Time taken for drip to traverse LEDs
-const unsigned long REST_DRIP_TRIP_MS = 30000;
-const unsigned long BREATH_TRIP_MS = 15000;
+const unsigned long REST_DRIP_TRIP_MS = 20000;
+const unsigned long BREATH_TRIP_MS = 30000;
 
 uint32_t dripCount = 0;
 uint32_t breathCount = 0;
@@ -54,6 +55,9 @@ unsigned int endActiveBreathMs = 0;
 unsigned int furthestBreathPosition = 0;
 unsigned int newestBreathPosition = 0;
 
+QuadraticEase dripEase[DRIP_LIMIT];
+QuadraticEase breathEase[BREATH_LIMIT];
+
 // High current Leaves
 const int LEAVES_REST_MS = 2000;
 
@@ -68,7 +72,6 @@ OctoWS2811 leds(ledsPerStrip, displayMemory, drawingMemory, config);
 // ========
 
 SPISettings dispatcherSPISettings(1e6, MSBFIRST, SPI_MODE3); 
-
 
 // =============
 // = Functions =

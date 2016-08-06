@@ -8,7 +8,7 @@ void setup() {
     pinMode (slaveSelectPin, OUTPUT);
     SPI.begin(); 
 
-    // Serial.begin(9600); // USB is always 12 Mbit/sec
+    Serial.begin(9600); // USB is always 12 Mbit/sec
     
     for (uint8_t c=1; c <= 12; c++) {
         dispatcher(c, 0);
@@ -87,10 +87,11 @@ void addRandomDrip() {
         int latestDripIndex = d - 1;
         if (latestDripIndex < 0) latestDripIndex = DRIP_LIMIT - 1; // wrap around
         int latestDripStart = dripStarts[latestDripIndex];
-        progress = (millis() - latestDripStart) / float(REST_DRIP_TRIP_MS);
+        // progress = (millis() - latestDripStart) / float(REST_DRIP_TRIP_MS);
+        progress = dripEase[latestDripIndex].easeIn(float(millis() - latestDripStart));
         
         // Don't start a new drip if the latest drip isn't done coming out
-        if (progress <= ((REST_DRIP_WIDTH_MAX+REST_DRIP_WIDTH_MIN)/float(ledsPerStrip))) {
+        if (progress <= (REST_DRIP_WIDTH_MAX + REST_DRIP_WIDTH_MIN)) {
             // Serial.println(" ---> Not starting drip, last not done yet.");
             return;
         }
@@ -108,6 +109,8 @@ void addRandomDrip() {
         dripColors[d] = randomGreen();
         dripWidth[d] = random(REST_DRIP_WIDTH_MIN, REST_DRIP_WIDTH_MAX);
         dripEaten[d] = false;
+        dripEase[d].setDuration(float(REST_DRIP_TRIP_MS));
+        dripEase[d].setTotalChangeInPosition(float(ledsPerStrip*1.1));
         dripCount++;
     }
 }
@@ -145,6 +148,8 @@ void addBreath() {
         breathStarts[b] = millis();
         breathPosition[b] = 0;
         breathWidth[b] = 1;
+        breathEase[b].setDuration(float(BREATH_TRIP_MS));
+        breathEase[b].setTotalChangeInPosition(float(ledsPerStrip*2));
         breathCount++;
         activeBreath = breathCount % BREATH_LIMIT;
     }
@@ -154,7 +159,8 @@ void addBreath() {
         int latestBreathIndex = b - 1;
         if (latestBreathIndex < 0) latestBreathIndex = BREATH_LIMIT - 1; // wrap around
         int latestBreathStart = breathStarts[latestBreathIndex];
-        float progress = float(millis() - latestBreathStart) / float(BREATH_TRIP_MS);
+        // float progress = float(millis() - latestBreathStart) / float(BREATH_TRIP_MS);
+        float progress = breathEase[latestBreathIndex].easeOut(float(millis() - latestBreathStart)) / float(ledsPerStrip);
         
         breathWidth[latestBreathIndex] = ceil(progress * ledsPerStrip);
         
@@ -174,8 +180,12 @@ void advanceRestDrips() {
         unsigned int dripStart = dripStarts[d];
         // The 1.1 is to ensure that the tail of each drip disappears, since
         // this only considers the position of the head of the drip.
-        float progress = (millis() - dripStart) / float(REST_DRIP_TRIP_MS);
-        if (progress >= 1.1) continue;
+        // float progress = (millis() - dripStart) / float(REST_DRIP_TRIP_MS);
+        float progress = dripEase[d].easeIn(float(millis() - dripStart)) / float(ledsPerStrip);
+        if (progress >= 1.1 || progress < 0 || dripStart == 0) {
+            dripStarts[d] = 0;
+            continue;
+        }
         if (dripEaten[d]) continue;
         unsigned int dripColor = dripColors[d];
 
@@ -186,30 +196,37 @@ void advanceRestDrips() {
 void advanceBreaths() {
     for (unsigned int b=0; b < min(breathCount, BREATH_LIMIT); b++) {
         unsigned int breathStart = breathStarts[b];
-        float progress = (millis() - breathStart) / float(BREATH_TRIP_MS);
-        if (progress >= 1.1) continue;
+        // float progress = (millis() - breathStart) / float(BREATH_TRIP_MS);
+        if (breathStart == 0) {
+            continue;
+        }
         drawBreath(b, breathStart);
     }
 }
 
 void drawDrip(int d, int dripStart, int dripColor) {
-    float progress = (millis() - dripStart) / float(REST_DRIP_TRIP_MS);
+    // float progress = (millis() - dripStart) / float(REST_DRIP_TRIP_MS);
+    float progress = dripEase[d].easeIn(float(millis() - dripStart));
     int head = 0;
     int tail = dripWidth[d];
     double currentLed = 0;
-    double headFractional = modf(progress * ledsPerStrip, &currentLed);
+    double headFractional = modf(progress, &currentLed);
     double tailFractional = (1 - REST_DRIP_DECAY) * (1 - headFractional);
     currentLed = ledsPerStrip - currentLed;
     
     int baseColor = dripColor;
     int color;
 
-    // Serial.print(" ---> Drip #");
-    // Serial.print(d);
-    // Serial.print(": ");
-    // Serial.print(currentLed);
-    // Serial.print(" < ");
-    // Serial.println(furthestBreathPosition);
+    Serial.print(" ---> Drip #");
+    Serial.print(d);
+    Serial.print(": ");
+    Serial.print(progress);
+    Serial.print(" (");
+    Serial.print(float(millis() - dripStart));
+    Serial.print(") = ");
+    Serial.print(currentLed);
+    Serial.print(" < ");
+    Serial.println(furthestBreathPosition);
 
     for (int i=head; i <= tail; i++) {
         // Head and tail pixel is the fractional fader
@@ -235,25 +252,31 @@ void drawDrip(int d, int dripStart, int dripColor) {
 }
 
 void drawBreath(int b, int breathStart) {
-    float progress = (millis() - breathStart) / float(BREATH_TRIP_MS);
+    // float progress = (millis() - breathStart) / float(BREATH_TRIP_MS);
+    float progress = breathEase[b].easeOut(float(millis() - breathStart));
     int head = 0;
     int tail = breathWidth[b];
     double currentLed = 0;
-    double headFractional = modf(progress * ledsPerStrip, &currentLed);
+    double headFractional = modf(progress, &currentLed);
     double tailFractional = (1 - BREATH_DECAY) * (1 - headFractional);
     breathPosition[b] = currentLed;
     if (currentLed-tail > ledsPerStrip) {
         furthestBreathPosition = 0;
+        breathStarts[b] = 0;
     } else if (currentLed > furthestBreathPosition) {
         furthestBreathPosition = breathPosition[b];
     }
 
-    // Serial.print(" ---> Breath #");
-    // Serial.print(b);
-    // Serial.print(": ");
-    // Serial.print(currentLed);
-    // Serial.print(" >? ");
-    // Serial.println(furthestBreathPosition);
+    Serial.print(" ---> Breath #");
+    Serial.print(b);
+    Serial.print(": ");
+    Serial.print(progress);
+    Serial.print(" = ");
+    Serial.print(currentLed);
+    Serial.print(" - ");
+    Serial.print(tail);
+    Serial.print(" >? ");
+    Serial.println(furthestBreathPosition);
     
     int baseColor = 0xFFFFFF;
     int color;
