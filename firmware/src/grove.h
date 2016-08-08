@@ -2,6 +2,7 @@
 #include <avr/power.h>
 #include <SPI.h>
 #include <QuadraticEase.h>
+#include <SineEase.h>
 
 // ===================
 // = Pin Definitions =
@@ -23,8 +24,8 @@ int drawingMemory[ledsPerStrip*6];
 const int config = WS2811_GRB | WS2811_800kHz;
 
 // Number of LEDs for each drip.
-const int REST_DRIP_WIDTH_MIN = 7;
-const int REST_DRIP_WIDTH_MAX = 20;
+const int REST_DRIP_WIDTH_MIN = 12;
+const int REST_DRIP_WIDTH_MAX = 30;
 
 // Amount of color fade from front-to-back of each drip.
 // Can probably increase this to 0.64 during Burning Man.
@@ -55,7 +56,7 @@ unsigned int endActiveBreathMs = 0;
 unsigned int furthestBreathPosition = 0;
 unsigned int newestBreathPosition = 0;
 
-QuadraticEase dripEase[DRIP_LIMIT];
+SineEase dripEase[DRIP_LIMIT];
 QuadraticEase breathEase[BREATH_LIMIT];
 
 // High current Leaves

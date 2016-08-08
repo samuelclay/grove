@@ -104,7 +104,7 @@ void addRandomDrip() {
     // Serial.print(" < ");
     // Serial.println(furthestBreathPosition);
     
-    if (!dripCount || random(0, (250 * max(1.f - progress, 1))) <= 1) {
+    if (!dripCount || random(0, (max(1.f - progress, 1))) <= 1) {
         dripStarts[d] = millis();
         dripColors[d] = randomGreen();
         dripWidth[d] = random(REST_DRIP_WIDTH_MIN, REST_DRIP_WIDTH_MAX);
@@ -119,8 +119,8 @@ bool hasNewBreath() {
     if (activeBreath != -1) return false;
     
     if (millis() > lastNewBreathMs) {
-        endActiveBreathMs = millis() + random(300, 1250);
-        lastNewBreathMs = endActiveBreathMs + random(1000, 3000);
+        endActiveBreathMs = millis() + random(500, 1000);
+        lastNewBreathMs = endActiveBreathMs + random(800, 1550);
         return true;
     }
     
@@ -291,8 +291,8 @@ void drawBreath(int b, int breathStart) {
         // Head and tail pixel is the fractional fader
         color = baseColor;
         double tailDecay = 1 - BREATH_DECAY*i/tail;
-        uint8_t r = ((color & 0x020000) >> 16) * (i == head ? headFractional : i == tail ? tailFractional : tailDecay);
-        uint8_t g = ((color & 0x000200) >> 8) * (i == head ? headFractional : i == tail ? tailFractional : tailDecay);
+        uint8_t r = ((color & 0x320000) >> 16) * (i == head ? headFractional : i == tail ? tailFractional : tailDecay);
+        uint8_t g = ((color & 0x003200) >> 8) * (i == head ? headFractional : i == tail ? tailFractional : tailDecay);
         uint8_t b = ((color & 0x000036) >> 0) * (i == head ? headFractional : i == tail ? tailFractional : tailDecay);
         color = ((r<<16)&0xFF0000) | ((g<<8)&0x00FF00) | ((b<<0)&0x0000FF);
 
