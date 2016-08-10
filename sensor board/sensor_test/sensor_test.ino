@@ -2,6 +2,7 @@
 #include <SI114.h>
 
 #define LEDPIN 8 //The pin that the Neopixels are on
+//#define PRINT_AMBIENT_LIGHT_SAMPLING
 #define PRINT_RAW_LED_VALUES //prints raw LED values from prox sensor for debug
 #define analogPinForRV  1 //Pin for raw voltage from wind sensor
 #define analogPinForTMP  2 //Pin for temp from wind sensor
@@ -85,25 +86,28 @@ void loop() {
   IR1 = IR1 / i;
   IR2 = IR2 / i;
   total = red + IR1 + IR2;
+  uint32_t color = (min(total, 300000000) - 100000000) / 100000000 * 255;
+  strip.setPixelColor(1, color);
+  strip.show();
 
 #ifdef PRINT_AMBIENT_LIGHT_SAMPLING
   Serial.print(pulse.resp, HEX);     // resp
-  Serial.print("\t");
+  Serial.print(" ");
   Serial.print(pulse.als_vis);       //  ambient visible
-  Serial.print("\t");
+  Serial.print(" ");
   Serial.print(pulse.als_ir);        //  ambient IR
-  Serial.print("\t");
+  Serial.print(" ");
 #endif
 
 #ifdef PRINT_RAW_LED_VALUES
   Serial.print(red);
-  Serial.print("\t");
+  Serial.print(" ");
   Serial.print(IR1);
-  Serial.print("\t");
+  Serial.print(" ");
   Serial.print(IR2);
-  Serial.print("\t");
-  Serial.println((long)total);
-  Serial.print("\t");
+  Serial.print(" ");
+  Serial.print((long)total);
+  Serial.print(" ");
 #endif
 
 #ifdef SEND_TO_PROCESSING_SKETCH
@@ -182,8 +186,13 @@ void loop() {
   //Serial.print("   ZeroWind volts ");
   //Serial.print(zeroWind_volts);
 
-  Serial.print("   WindSpeed MPH ");
+//  Serial.print("   WindSpeed MPH ");
   Serial.println((float)WindSpeed_MPH);
+  uint32_t range = 250 - 150;
+  uint32_t windColor = (WindSpeed_MPH - 150) / range * 255;
+  strip.setPixelColor(0, min(windColor, 255));
+  strip.show();
+
 
 
   ///////////////////
@@ -197,9 +206,9 @@ void loop() {
   ////////////////////
   int alarm = digitalRead(20);
   if (alarm == LOW) {
-    Serial.print("PIR is LOW");
+//    Serial.print("PIR is LOW");
   } else {
-    Serial.print("PIR is HIGH");
+//    Serial.print("PIR is HIGH");
   }
 
   //rainbow(.1); //Run a cool light show
