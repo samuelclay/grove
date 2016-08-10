@@ -34,7 +34,8 @@ const double BREATH_DECAY = 0.95;
 
 // Time taken for drip to traverse LEDs
 const unsigned long REST_DRIP_TRIP_MS = 20000;
-const unsigned long BREATH_TRIP_MS = 30000;
+const unsigned long BREATH_TRIP_MS = 20000;
+const unsigned long BREATH_RISE_MS = 1750;
 
 uint32_t dripCount = 0;
 uint32_t breathCount = 0;
@@ -54,13 +55,22 @@ int activeBreath = -1;
 unsigned int lastNewBreathMs = 0;
 unsigned int endActiveBreathMs = 0;
 unsigned int furthestBreathPosition = 0;
-unsigned int newestBreathPosition = 0;
+unsigned int breathBoostStart = 0;
+unsigned int breathFallingStart = 0;
 
 SineEase dripEase[DRIP_LIMIT];
 QuadraticEase breathEase[BREATH_LIMIT];
 
 // High current Leaves
 const int LEAVES_REST_MS = 2000;
+
+typedef enum
+{
+    STATE_RESTING  = 0,
+    STATE_RISING   = 1,
+    STATE_FALLING  = 2
+} state_breath_t;
+state_breath_t breathState;
 
 // ========
 // = LEDs =

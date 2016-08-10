@@ -4,7 +4,8 @@ void setup() {
     leds.begin();
     leds.show();
     randomSeed(analogRead(0));
-
+    
+    breathState = STATE_RESTING;
     pinMode (slaveSelectPin, OUTPUT);
     SPI.begin(); 
 
@@ -14,8 +15,10 @@ void setup() {
         dispatcher(c, 0);
     }    
     
+    return;
+    
     // This has the effect of running through a pulsating red, then green, then blue. Used to test dispatcher.
-    for (uint8_t chan_group=0; chan_group < 4; chan_group++) {
+    for (uint8_t chan_group=0; chan_group < 3; chan_group++) {
         // Raise light for single colors at a time (in channel groups)
         for (uint8_t i=0; i < 255; i++) {
             for (uint8_t c=1; c <= 12; c++) {
@@ -34,6 +37,47 @@ void setup() {
             }
             delay(1);
         }
+    }
+    
+    for (uint8_t chan_group=0; chan_group < 3; chan_group++) {
+        // Raise light for single colors at a time (in channel groups)
+        for (uint8_t i=0; i < 255; i++) {
+            for (uint8_t c=1; c <= 12; c++) {
+                int channel = (c-1) % 3;
+                if ((chan_group == 0 && (channel == 0 || channel == 1)) ||
+                    (chan_group == 1 && (channel == 1 || channel == 2)) ||
+                    (chan_group == 2 && (channel == 2 || channel == 0))) {
+                    dispatcher(c, i);
+                }
+            }
+            delay(1);
+        }
+        // Lower light
+        for (uint8_t i=255; i > 0; i--) {
+            for (uint8_t c=1; c <= 12; c++) {
+                int channel = (c-1) % 3;
+                if ((chan_group == 0 && (channel == 0 || channel == 1)) ||
+                    (chan_group == 1 && (channel == 1 || channel == 2)) ||
+                    (chan_group == 2 && (channel == 2 || channel == 0))) {
+                    dispatcher(c, i);
+                }
+            }
+            delay(1);
+        }
+    }
+    // Raise light for single colors at a time (in channel groups)
+    for (uint8_t i=0; i < 255; i++) {
+        for (uint8_t c=1; c <= 12; c++) {
+            dispatcher(c, i);
+        }
+        delay(1);
+    }
+    // Lower light
+    for (uint8_t i=255; i > 0; i--) {
+        for (uint8_t c=1; c <= 12; c++) {
+            dispatcher(c, i);
+        }
+        delay(1);
     }
 }
 
@@ -217,16 +261,16 @@ void drawDrip(int d, int dripStart, int dripColor) {
     int baseColor = dripColor;
     int color;
 
-    Serial.print(" ---> Drip #");
-    Serial.print(d);
-    Serial.print(": ");
-    Serial.print(progress);
-    Serial.print(" (");
-    Serial.print(float(millis() - dripStart));
-    Serial.print(") = ");
-    Serial.print(currentLed);
-    Serial.print(" < ");
-    Serial.println(furthestBreathPosition);
+    // Serial.print(" ---> Drip #");
+    // Serial.print(d);
+    // Serial.print(": ");
+    // Serial.print(progress);
+    // Serial.print(" (");
+    // Serial.print(float(millis() - dripStart));
+    // Serial.print(") = ");
+    // Serial.print(currentLed);
+    // Serial.print(" < ");
+    // Serial.println(furthestBreathPosition);
 
     for (int i=head; i <= tail; i++) {
         // Head and tail pixel is the fractional fader
@@ -266,27 +310,34 @@ void drawBreath(int b, int breathStart) {
     } else if (currentLed > furthestBreathPosition) {
         furthestBreathPosition = breathPosition[b];
     }
-
-    Serial.print(" ---> Breath #");
-    Serial.print(b);
-    Serial.print(": ");
-    Serial.print(progress);
-    Serial.print(" = ");
-    Serial.print(currentLed);
-    Serial.print(" - ");
-    Serial.print(tail);
-    Serial.print(" >? ");
-    Serial.println(furthestBreathPosition);
     
-    int baseColor = 0xFFFFFF;
-    int color;
+    if (currentLed > ledsPerStrip) {
+        if (breathState == STATE_RESTING) {
+            breathBoostStart = millis();
+            breathFallingStart = breathBoostStart + BREATH_RISE_MS;
+            breathState = STATE_RISING;
+        } else if (breathState == STATE_FALLING) {
+            float breathProgress = (millis() - breathFallingStart) / float(BREATH_RISE_MS);
+            breathBoostStart = millis() - int(round(BREATH_RISE_MS*(1-breathProgress)));
+            breathFallingStart = breathBoostStart + BREATH_RISE_MS;
+            breathState = STATE_RISING;
+        }
+    }
+
     // Serial.print(" ---> Breath #");
     // Serial.print(b);
     // Serial.print(": ");
+    // Serial.print(progress);
+    // Serial.print(" = ");
     // Serial.print(currentLed);
-    // Serial.print(" -> ");
-    // Serial.println(tail);
+    // Serial.print(" - ");
+    // Serial.print(tail);
+    // Serial.print(" >? ");
+    // Serial.println(furthestBreathPosition);
     
+    int baseColor = 0xFFFFFF;
+    int color;
+
     for (int i=head; i <= tail; i++) {
         // Head and tail pixel is the fractional fader
         color = baseColor;
@@ -299,10 +350,6 @@ void drawBreath(int b, int breathStart) {
         leds.setPixel(ledsPerStrip*2+currentLed-i, color);
     }
     
-    if (currentLed - tail > ledsPerStrip) {
-        breathStarts[b] = 0;
-    }
-    
     for (int i=1; i <= 5; i++) {
         leds.setPixel(ledsPerStrip*2+currentLed-tail-i, 0);
     }
@@ -310,6 +357,7 @@ void drawBreath(int b, int breathStart) {
 
 void runLeaves() {
     float boostDuration = 500;
+    // Serial.print(" ---> Leaves: ");
     
     for (int c=1; c <= 12; c++) {
         int channelOffset = millis() + ((c<=4 ? 0 : c <= 8 ? 1 : c <= 12 ? 2 : 3) * LEAVES_REST_MS/4);
@@ -340,17 +388,41 @@ void runLeaves() {
                 boost = boost * (1 - progress);
                 brightness += boost;
             }
+            
+            if ((c-1)%3 == 0) {
+                dispatcher(c, max(70, brightness));
+            }
         }
-
-        // Serial.print(" ---> Leaves: ");
-        // Serial.print(brightness);
-        // Serial.print(" ");
-        // Serial.println(")");
         
-        dispatcher(c, (c-1)%3==0 ? brightness : 0);
+        
+        if (breathState != STATE_RESTING) {
+            if (breathState == STATE_RISING) {
+                float breathProgress = (millis() - breathBoostStart) / float(BREATH_RISE_MS);
+                brightness = breathProgress * 255;
+                if (breathProgress >= 1) {
+                    breathState = STATE_FALLING;
+                }
+            } else if (breathState == STATE_FALLING) {
+                float breathProgress = (millis() - breathFallingStart) / float(BREATH_RISE_MS);
+                brightness = (1 - breathProgress) * 255;
+                if (breathProgress >= 1) {
+                    breathState = STATE_RESTING;
+                }
+            }
+            
+            if ((c-1)%3 == 1) {
+                Serial.print(brightness);
+                Serial.print(" ");
+                dispatcher(c, brightness);
+            }
+        } else {
+            if ((c-1)%3 == 1) {
+                dispatcher(c, 0);
+            }
+        }
     }
     
-    // Serial.println("");
+    Serial.println("");
 }
 
 int randomGreen() {
