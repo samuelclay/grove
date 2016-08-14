@@ -15,7 +15,7 @@ void setup() {
         dispatcher(c, 0);
     }    
     
-    return;
+    // return;
     
     // This has the effect of running through a pulsating red, then green, then blue. Used to test dispatcher.
     for (uint8_t chan_group=0; chan_group < 3; chan_group++) {
@@ -319,6 +319,10 @@ void drawBreath(int b, int breathStart) {
         } else if (breathState == STATE_FALLING) {
             float breathProgress = (millis() - breathFallingStart) / float(BREATH_RISE_MS);
             breathBoostStart = millis() - int(round(BREATH_RISE_MS*(1-breathProgress)));
+            Serial.print(breathProgress);
+            Serial.print(" ");
+            Serial.print(breathBoostStart);
+            Serial.print(" ");
             breathFallingStart = breathBoostStart + BREATH_RISE_MS;
             breathState = STATE_RISING;
         }
@@ -373,20 +377,22 @@ void runLeaves() {
             int d = dripCount % DRIP_LIMIT;
             int latestDripIndex = d - 1;
             if (latestDripIndex < 0) latestDripIndex = DRIP_LIMIT - 1; // wrap around
-            float boost = 255 - center - width;
-            if (millis() - dripStarts[latestDripIndex] < boostDuration) {
-                // Linear boost up to max brightness
-                progress = ((millis() - dripStarts[latestDripIndex]) / boostDuration);
-                boost = boost * progress;
-                brightness += boost;
-            } else if (millis() - dripStarts[latestDripIndex] - boostDuration < boostDuration) {
-                // Hold boost
-                brightness += boost;
-            } else if (millis() - dripStarts[latestDripIndex] - 2*boostDuration < boostDuration) {
-                // Linear boost down back to baseline
-                progress = ((millis() - dripStarts[latestDripIndex] - 2*boostDuration) / boostDuration);
-                boost = boost * (1 - progress);
-                brightness += boost;
+            if (breathState == STATE_RESTING || true) {
+                float boost = 255 - center - width;
+                if (millis() - dripStarts[latestDripIndex] < boostDuration) {
+                    // Linear boost up to max brightness
+                    progress = ((millis() - dripStarts[latestDripIndex]) / boostDuration);
+                    boost = boost * progress;
+                    brightness += boost;
+                } else if (millis() - dripStarts[latestDripIndex] - boostDuration < boostDuration) {
+                    // Hold boost
+                    brightness += boost;
+                } else if (millis() - dripStarts[latestDripIndex] - 2*boostDuration < boostDuration) {
+                    // Linear boost down back to baseline
+                    progress = ((millis() - dripStarts[latestDripIndex] - 2*boostDuration) / boostDuration);
+                    boost = boost * (1 - progress);
+                    brightness += boost;
+                }
             }
             
             if ((c-1)%3 == 0) {
@@ -410,12 +416,14 @@ void runLeaves() {
                 }
             }
             
+            // if ((c-1)%3 == 1 || (c-1)%3 == 2) {
             if ((c-1)%3 == 1) {
                 Serial.print(brightness);
                 Serial.print(" ");
                 dispatcher(c, brightness);
             }
         } else {
+            // if ((c-1)%3 == 1 || (c-1)%3 == 2) {
             if ((c-1)%3 == 1) {
                 dispatcher(c, 0);
             }

@@ -107,7 +107,7 @@ void loop() {
   Serial.print(IR2);
   Serial.print(" ");
   Serial.print((long)total);
-  Serial.print(" ");
+  Serial.println(" ");
 #endif
 
 #ifdef SEND_TO_PROCESSING_SKETCH
@@ -187,7 +187,7 @@ void loop() {
   //Serial.print(zeroWind_volts);
 
 //  Serial.print("   WindSpeed MPH ");
-  Serial.println((float)WindSpeed_MPH);
+//  Serial.println((float)WindSpeed_MPH);
   uint32_t range = 250 - 150;
   uint32_t windColor = (WindSpeed_MPH - 150) / range * 255;
   strip.setPixelColor(0, min(windColor, 255));
