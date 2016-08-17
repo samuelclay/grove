@@ -10,74 +10,46 @@ void setup() {
     SPI.begin(); 
 
     Serial.begin(9600); // USB is always 12 Mbit/sec
-    
-    for (uint8_t c=1; c <= 12; c++) {
-        dispatcher(c, 0);
-    }    
-    
-    // return;
-    
-    // This has the effect of running through a pulsating red, then green, then blue. Used to test dispatcher.
-    for (uint8_t chan_group=0; chan_group < 3; chan_group++) {
-        // Raise light for single colors at a time (in channel groups)
+
+    clearDispatcher();
+
+    return;
+
+    testDispatcherRGB(1);
+}
+
+void clearDispatcher() {
+    setDispatcherGlobalRGB(0, 0, 0);
+}
+
+void setDispatcherGlobalRGB(uint8_t rValue, uint8_t gValue, uint8_t bValue) {
+    for (uint8_t c = 0; c <= 4; c++) {
+        dispatcher(c*3 + 1, rValue);
+        dispatcher(c*3 + 2, gValue);
+        dispatcher(c*3 + 3, bValue);
+    }
+}
+
+void testDispatcherRGB(int delayTime) {
+    for (uint8_t cGroup = 0; cGroup < 3; cGroup++) {
+        // Raise light
         for (uint8_t i=0; i < 255; i++) {
-            for (uint8_t c=1; c <= 12; c++) {
-                if ((c-1) % 3 == chan_group) { // All the reds, then the greens, then the blues
-                    dispatcher(c, i);
-                }
-            }
-            delay(1);
+            setDispatcherGlobalRGB(
+                cGroup == 0 ? i : 0,
+                cGroup == 1 ? i : 0,
+                cGroup == 2 ? i : 0
+            );
+            delay(delayTime);
         }
         // Lower light
         for (uint8_t i=255; i > 0; i--) {
-            for (uint8_t c=1; c <= 12; c++) {
-                if ((c-1) % 3 == chan_group) {
-                    dispatcher(c, i);
-                }
-            }
-            delay(1);
+            setDispatcherGlobalRGB(
+                cGroup == 0 ? i : 0,
+                cGroup == 1 ? i : 0,
+                cGroup == 2 ? i : 0
+            );
+            delay(delayTime);
         }
-    }
-    
-    for (uint8_t chan_group=0; chan_group < 3; chan_group++) {
-        // Raise light for single colors at a time (in channel groups)
-        for (uint8_t i=0; i < 255; i++) {
-            for (uint8_t c=1; c <= 12; c++) {
-                int channel = (c-1) % 3;
-                if ((chan_group == 0 && (channel == 0 || channel == 1)) ||
-                    (chan_group == 1 && (channel == 1 || channel == 2)) ||
-                    (chan_group == 2 && (channel == 2 || channel == 0))) {
-                    dispatcher(c, i);
-                }
-            }
-            delay(1);
-        }
-        // Lower light
-        for (uint8_t i=255; i > 0; i--) {
-            for (uint8_t c=1; c <= 12; c++) {
-                int channel = (c-1) % 3;
-                if ((chan_group == 0 && (channel == 0 || channel == 1)) ||
-                    (chan_group == 1 && (channel == 1 || channel == 2)) ||
-                    (chan_group == 2 && (channel == 2 || channel == 0))) {
-                    dispatcher(c, i);
-                }
-            }
-            delay(1);
-        }
-    }
-    // Raise light for single colors at a time (in channel groups)
-    for (uint8_t i=0; i < 255; i++) {
-        for (uint8_t c=1; c <= 12; c++) {
-            dispatcher(c, i);
-        }
-        delay(1);
-    }
-    // Lower light
-    for (uint8_t i=255; i > 0; i--) {
-        for (uint8_t c=1; c <= 12; c++) {
-            dispatcher(c, i);
-        }
-        delay(1);
     }
 }
 
@@ -101,6 +73,11 @@ void loop() {
  * value is 0-255 range analog output of the dac/LED brightness
  */
 void dispatcher(uint8_t chan, uint8_t value) {
+    // We could normalize here to a "real" range
+    // There's nothing below 45 because below 0.5 the pico buck is off
+    // value = value * 210 / 255;
+    // if (value > 0) value += 45;
+
     // take the SS pin low to select the chip:
     SPI.beginTransaction(dispatcherSPISettings);
 

@@ -96,6 +96,9 @@ void advanceRestDrips();
 void advanceBreaths();
 int randomGreen();
 void dispatcher(uint8_t chan, uint8_t value);
+void clearDispatcher();
+void testDispatcherRGB(int delayTime);
+void setDispatcherGlobalRGB(uint8_t rValue, uint8_t gValue, uint8_t bValue);
 uint8_t flipByte(uint8_t val);
 void runLeaves();
 
