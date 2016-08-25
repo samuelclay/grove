@@ -1,4 +1,5 @@
 #include "grove.h"
+#include "WS2812.h"
 
 void setup() { 
     leds.begin();
@@ -13,7 +14,7 @@ void setup() {
 
     clearDispatcher();
 
-    return;
+    // return;
 
     testDispatcherRGB(1);
 }
@@ -58,7 +59,7 @@ void loop() {
     advanceRestDrips();
     
     if (millis() % 60000 < 15000) {
-        addBreath();
+        // addBreath();
     }
     advanceBreaths();
     
@@ -102,6 +103,7 @@ uint8_t flipByte(uint8_t val) {
 void addRandomDrip() {
     // Wait until drip is far enough away from beginning
     float progress = 0;
+    int previousLength = 0;
     int d = dripCount % DRIP_LIMIT;
     
     if (dripCount) {
@@ -110,11 +112,14 @@ void addRandomDrip() {
         int latestDripStart = dripStarts[latestDripIndex];
         // progress = (millis() - latestDripStart) / float(REST_DRIP_TRIP_MS);
         progress = dripEase[latestDripIndex].easeIn(float(millis() - latestDripStart));
+        previousLength = dripWidth[latestDripIndex];
         
         // Don't start a new drip if the latest drip isn't done coming out
-        if (progress <= (REST_DRIP_WIDTH_MAX + REST_DRIP_WIDTH_MIN)) {
+        if (progress <= previousLength/2+1) {
             // Serial.println(" ---> Not starting drip, last not done yet.");
             return;
+        } else if (newDripDelayEnd == 0) {
+            newDripDelayEnd = millis() + random(REST_DRIP_DELAY_MIN, REST_DRIP_DELAY_MAX);
         }
     }
 
@@ -125,13 +130,14 @@ void addRandomDrip() {
     // Serial.print(" < ");
     // Serial.println(furthestBreathPosition);
     
-    if (!dripCount || random(0, (max(1.f - progress, 1))) <= 1) {
+    if (!dripCount || millis() > newDripDelayEnd) {
+        newDripDelayEnd = 0;
         dripStarts[d] = millis();
         dripColors[d] = randomGreen();
         dripWidth[d] = random(REST_DRIP_WIDTH_MIN, REST_DRIP_WIDTH_MAX);
         dripEaten[d] = false;
         dripEase[d].setDuration(float(REST_DRIP_TRIP_MS));
-        dripEase[d].setTotalChangeInPosition(float(ledsPerStrip*1.1));
+        dripEase[d].setTotalChangeInPosition(float(ledsPerStrip*2));
         dripCount++;
     }
 }
@@ -199,11 +205,11 @@ void addBreath() {
 void advanceRestDrips() {
     for (unsigned int d=0; d < min(dripCount, DRIP_LIMIT); d++) {
         unsigned int dripStart = dripStarts[d];
-        // The 1.1 is to ensure that the tail of each drip disappears, since
+        // The 2 is to ensure that the tail of each drip disappears, since
         // this only considers the position of the head of the drip.
         // float progress = (millis() - dripStart) / float(REST_DRIP_TRIP_MS);
         float progress = dripEase[d].easeIn(float(millis() - dripStart)) / float(ledsPerStrip);
-        if (progress >= 1.1 || progress < 0 || dripStart == 0) {
+        if (progress < 0 || dripStart == 0) {
             dripStarts[d] = 0;
             continue;
         }
@@ -228,48 +234,80 @@ void advanceBreaths() {
 void drawDrip(int d, int dripStart, int dripColor) {
     // float progress = (millis() - dripStart) / float(REST_DRIP_TRIP_MS);
     float progress = dripEase[d].easeIn(float(millis() - dripStart));
-    int head = 0;
-    int tail = dripWidth[d];
-    double currentLed = 0;
-    double headFractional = modf(progress, &currentLed);
+    int32_t windowHead = 0;
+    double dripHeadPosition = 0;
+    double headFractional = modf(progress, &dripHeadPosition);
     double tailFractional = (1 - REST_DRIP_DECAY) * (1 - headFractional);
-    currentLed = ledsPerStrip - currentLed;
+    int32_t windowTail = dripWidth[d];
+    int32_t dripTail = dripHeadPosition-dripWidth[d];
     
     int baseColor = dripColor;
     int color;
 
-    // Serial.print(" ---> Drip #");
-    // Serial.print(d);
-    // Serial.print(": ");
-    // Serial.print(progress);
-    // Serial.print(" (");
-    // Serial.print(float(millis() - dripStart));
-    // Serial.print(") = ");
-    // Serial.print(currentLed);
-    // Serial.print(" < ");
-    // Serial.println(furthestBreathPosition);
-
-    for (int i=head; i <= tail; i++) {
+    windowHead = constrain(dripHeadPosition, 0, ledsPerStrip);
+    windowTail = constrain(dripTail, 0, ledsPerStrip);
+    if (d == 0) {
+        Serial.print(" ---> Drip #");
+        Serial.print(d);
+        Serial.print(": ");
+        Serial.print(progress);
+        Serial.print(" (");
+        Serial.print(float(millis() - dripStart));
+        Serial.print(") = ");
+        Serial.print(dripHeadPosition);
+        Serial.print(". ");
+        Serial.print(ledsPerStrip - dripTail);
+        Serial.print(" < ");
+        Serial.print(furthestBreathPosition);
+        Serial.print(". ");
+        Serial.print(windowHead);
+        Serial.print(" --> ");
+        Serial.println(windowTail);
+    }
+    for (int32_t i=max(windowHead-1, 0); i >= windowTail; i--) {
         // Head and tail pixel is the fractional fader
-        color = baseColor;
-        double tailDecay = 1 - REST_DRIP_DECAY*i/tail;
-        uint8_t r = ((color & 0xFF0000) >> 16) * (i == head ? headFractional : i == tail ? tailFractional : tailDecay);
-        uint8_t g = ((color & 0x00FF00) >> 8) * (i == head ? headFractional : i == tail ? tailFractional : tailDecay);
-        uint8_t b = ((color & 0x0000FF) >> 0) * (i == head ? headFractional : i == tail ? tailFractional : tailDecay);
-        color = ((r<<16)&0xFF0000) | ((g<<8)&0x00FF00) | ((b<<0)&0x0000FF);
+        // double tailDecay = 1 - REST_DRIP_DECAY*i/tail;
+        uint32_t x = i;
+        // Serial.println(x);
+        // if (x > ledsPerStrip || x < 0) continue;
+        if (x > (uint32_t)furthestBreathPosition && furthestBreathPosition != 0) continue;
 
-        if (currentLed+i < furthestBreathPosition) {
-            continue;
-        }
-        leds.setPixel(ledsPerStrip*2+currentLed+i, color);
+        int t = millis();
+        int positionMultipler = 2;
+        int timeMultiplier = 20;
+        int sinPos = ((positionMultipler*x) + (t/timeMultiplier)) % 360;
+        float tailRange = 0.95f;
+        float tailDecay = (sinTable[sinPos] * (tailRange/2)) + (1 - tailRange/2);
+        if (i == windowHead-1) headFractional *= tailDecay;
+        if (i == windowTail) tailFractional *= tailDecay;
+
+        color = baseColor;
+        uint8_t r = ((color & 0xFF0000) >> 16) * 
+            (i == windowHead-1 ? headFractional : i == windowTail ? tailFractional : tailDecay);
+        uint8_t g = ((color & 0x00FF00) >> 8) * 
+            (i == windowHead-1 ? headFractional : i == windowTail ? tailFractional : tailDecay);
+        uint8_t b = ((color & 0x0000FF) >> 0) * 
+            (i == windowHead-1 ? headFractional : i == windowTail ? tailFractional : tailDecay);
+        color = ((r<<16)&0xFF0000) | ((g<<8)&0x00FF00) | ((b<<0)&0x0000FF);
+        
+        leds.setPixel(ledsPerStrip*2+(ledsPerStrip - x), color);
     }
     
-    if (currentLed+tail < furthestBreathPosition) {
+    if ((ledsPerStrip - dripHeadPosition) <= furthestBreathPosition && furthestBreathPosition != 0) {
         dripEaten[d] = true;
     }
-    for (int i=1; i <= 5; i++) {
-        leds.setPixel(ledsPerStrip*2+currentLed+tail+i, 0);
+    
+    if (dripTail > ledsPerStrip*2) {
+        dripEaten[d] = true;
     }
+    
+    
+    
+    for (int i=dripTail; i <= dripTail+5; i++) {
+        if (i > ledsPerStrip || i < 0) continue;
+        leds.setPixel(ledsPerStrip*2+(ledsPerStrip - i), 0);
+    }
+    
 }
 
 void drawBreath(int b, int breathStart) {
@@ -296,10 +334,10 @@ void drawBreath(int b, int breathStart) {
         } else if (breathState == STATE_FALLING) {
             float breathProgress = (millis() - breathFallingStart) / float(BREATH_RISE_MS);
             breathBoostStart = millis() - int(round(BREATH_RISE_MS*(1-breathProgress)));
-            Serial.print(breathProgress);
-            Serial.print(" ");
-            Serial.print(breathBoostStart);
-            Serial.print(" ");
+            // Serial.print(breathProgress);
+            // Serial.print(" ");
+            // Serial.print(breathBoostStart);
+            // Serial.print(" ");
             breathFallingStart = breathBoostStart + BREATH_RISE_MS;
             breathState = STATE_RISING;
         }
@@ -337,7 +375,7 @@ void drawBreath(int b, int breathStart) {
 }
 
 void runLeaves() {
-    float boostDuration = 500;
+    unsigned long boostDuration = 500;
     // Serial.print(" ---> Leaves: ");
     
     for (int c=1; c <= 12; c++) {
@@ -358,7 +396,7 @@ void runLeaves() {
                 float boost = 255 - center - width;
                 if (millis() - dripStarts[latestDripIndex] < boostDuration) {
                     // Linear boost up to max brightness
-                    progress = ((millis() - dripStarts[latestDripIndex]) / boostDuration);
+                    progress = ((millis() - dripStarts[latestDripIndex]) / float(boostDuration));
                     boost = boost * progress;
                     brightness += boost;
                 } else if (millis() - dripStarts[latestDripIndex] - boostDuration < boostDuration) {
@@ -366,7 +404,7 @@ void runLeaves() {
                     brightness += boost;
                 } else if (millis() - dripStarts[latestDripIndex] - 2*boostDuration < boostDuration) {
                     // Linear boost down back to baseline
-                    progress = ((millis() - dripStarts[latestDripIndex] - 2*boostDuration) / boostDuration);
+                    progress = ((millis() - dripStarts[latestDripIndex] - 2*boostDuration) / float(boostDuration));
                     boost = boost * (1 - progress);
                     brightness += boost;
                 }
@@ -395,8 +433,8 @@ void runLeaves() {
             
             // if ((c-1)%3 == 1 || (c-1)%3 == 2) {
             if ((c-1)%3 == 1) {
-                Serial.print(brightness);
-                Serial.print(" ");
+                // Serial.print(brightness);
+                // Serial.print(" ");
                 dispatcher(c, brightness);
             }
         } else {
@@ -407,11 +445,26 @@ void runLeaves() {
         }
     }
     
-    Serial.println("");
+    // Serial.println("");
 }
 
-int randomGreen() {
-    int greens[] = {
+unsigned long randomGreen() {
+    unsigned long greens[] = {
+#if CAMPLIGHTS
+            NAVY, DARKBLUE, MEDIUMBLUE, BLUE, DARKGREEN, GREEN, TEAL, DARKCYAN,
+            DEEPSKYBLUE, DARKTURQUOISE, MEDIUMSPRINGGREEN, LIME, SPRINGGREEN,
+            AQUA, CYAN, MIDNIGHTBLUE, DODGERBLUE, LIGHTSEAGREEN, FORESTGREEN,
+            SEAGREEN, DARKSLATEGRAY, LIMEGREEN, MEDIUMSEAGREEN, TURQUOISE,
+            ROYALBLUE, STEELBLUE, DARKSLATEBLUE, MEDIUMTURQUOISE, INDIGO,
+            LAWNGREEN, CHARTREUSE, AQUAMARINE, MAROON, PURPLE, OLIVE,
+            SKYBLUE, BLUEVIOLET, DARKRED, DARKMAGENTA, SADDLEBROWN,
+            DARKORCHID, YELLOWGREEN, SIENNA, MEDIUMPURPLE, DARKVIOLET, BROWN,
+            GREENYELLOW, FIREBRICK, SALMON,
+            DARKGOLDENROD, MEDIUMORCHID, ROSYBROWN, DARKKHAKI,
+            MEDIUMVIOLETRED, CHOCOLATE, PALEVIOLETRED, CRIMSON, GOLDENROD,
+            RED, FUCHSIA, MAGENTA, DEEPPINK, ORANGERED, TOMATO, DARKORANGE,
+            ORANGE, GOLD, YELLOW
+#else
         0x36CD00, // Light green
         0x06FD00, // Pure green
         0x06CD00, // Bright green
@@ -419,6 +472,7 @@ int randomGreen() {
         0xACEC00, // Yellowish-Green
         0x45DB06, // Teal green
         0x29BD06  // Seafoam green
+#endif
     };
 
     return greens[random(0, sizeof(greens)/sizeof(int))];

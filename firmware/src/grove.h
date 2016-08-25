@@ -4,6 +4,8 @@
 #include <QuadraticEase.h>
 #include <SineEase.h>
 
+#define CAMPLIGHTS 1
+
 // ===================
 // = Pin Definitions =
 // ===================
@@ -24,8 +26,15 @@ int drawingMemory[ledsPerStrip*6];
 const int config = WS2811_GRB | WS2811_800kHz;
 
 // Number of LEDs for each drip.
-const int REST_DRIP_WIDTH_MIN = 12;
-const int REST_DRIP_WIDTH_MAX = 30;
+#if CAMPLIGHTS
+const int32_t REST_DRIP_WIDTH_MIN = 30;
+const int32_t REST_DRIP_WIDTH_MAX = 7500;
+#else
+const int32_t REST_DRIP_WIDTH_MIN = 12;
+const int32_t REST_DRIP_WIDTH_MAX = 30;
+#endif
+const int32_t REST_DRIP_DELAY_MIN = 100;
+const int32_t REST_DRIP_DELAY_MAX = 200;
 
 // Amount of color fade from front-to-back of each drip.
 // Can probably increase this to 0.64 during Burning Man.
@@ -42,23 +51,24 @@ uint32_t breathCount = 0;
 
 // This limit is responsible for how much memory the drips take.
 const int DRIP_LIMIT = 20;
-unsigned int dripStarts[DRIP_LIMIT];
+unsigned long dripStarts[DRIP_LIMIT];
 unsigned int dripColors[DRIP_LIMIT];
 unsigned int dripWidth[DRIP_LIMIT];
 bool dripEaten[DRIP_LIMIT];
+unsigned int newDripDelayEnd = 0;
 
 const int BREATH_LIMIT = 20;
-unsigned int breathStarts[BREATH_LIMIT];
+unsigned long breathStarts[BREATH_LIMIT];
 unsigned int breathWidth[BREATH_LIMIT];
 unsigned int breathPosition[BREATH_LIMIT];
 int activeBreath = -1;
 unsigned int lastNewBreathMs = 0;
 unsigned int endActiveBreathMs = 0;
-unsigned int furthestBreathPosition = 0;
+int furthestBreathPosition = 0;
 unsigned int breathBoostStart = 0;
 unsigned int breathFallingStart = 0;
 
-SineEase dripEase[DRIP_LIMIT];
+QuadraticEase dripEase[DRIP_LIMIT];
 QuadraticEase breathEase[BREATH_LIMIT];
 
 // High current Leaves
@@ -94,7 +104,7 @@ void addRandomDrip();
 void addBreath();
 void advanceRestDrips();
 void advanceBreaths();
-int randomGreen();
+unsigned long randomGreen();
 void dispatcher(uint8_t chan, uint8_t value);
 void clearDispatcher();
 void testDispatcherRGB(int delayTime);
