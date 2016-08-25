@@ -1,5 +1,11 @@
 #include "sensor.h"
 
+float lowAvgFactor = 0.9;
+float lowAvg = 700;
+float highAvgFactor = 0.98;
+float highAvg = 700;
+
+
 void setup() { 
     Serial.begin(9600);
 
@@ -81,7 +87,7 @@ float getWind() {
     return WindSpeed_MPH;
 }
 
-int pollUltrasonic(){
+int getUltrasonic(){
     return analogRead(ULTRASONIC_ANALOG_PIN);
 }
 
@@ -93,12 +99,19 @@ void setOnboardLEDs(uint8_t rValue, uint8_t gValue, uint8_t bValue) {
     leds.show();
 }
 
-void loop() {
-    // Serial.println(getWind(), 2);
-    // Serial.print(getRawWind(), DEC);
-    // Serial.print(" - ");
-    // Serial.println(getRawWindTemp(), DEC);
-    // printProx();
+void runWindAvgs() {
+    int raw = getRawWind();
 
-    delay(25);
+    lowAvg = lowAvg * lowAvgFactor + raw * (1 - lowAvgFactor);
+    highAvg = highAvg * highAvgFactor + raw * (1 - highAvgFactor);
+}
+
+void loop() {
+    setOnboardLEDs(255, 0, 100);
+
+    runWindAvgs();
+
+    Serial.println((int)(highAvg-lowAvg), DEC);
+
+    delay(20);
 }
