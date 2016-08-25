@@ -290,7 +290,7 @@ void drawBreath(int b, int breathStart) {
     
     if (currentLed > ledsPerStrip) {
         if (breathState == STATE_RESTING) {
-            breathBoostStart = millis();
+            breathBoostStart = millis() - 300;
             breathFallingStart = breathBoostStart + BREATH_RISE_MS;
             breathState = STATE_RISING;
         } else if (breathState == STATE_FALLING) {
@@ -380,7 +380,7 @@ void runLeaves() {
         
         if (breathState != STATE_RESTING) {
             if (breathState == STATE_RISING) {
-                float breathProgress = (millis() - breathBoostStart) / float(BREATH_RISE_MS);
+                float breathProgress = (millis() - (breathBoostStart)) / float(BREATH_RISE_MS);
                 brightness = breathProgress * 255;
                 if (breathProgress >= 1) {
                     breathState = STATE_FALLING;
