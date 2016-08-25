@@ -90,8 +90,8 @@ void loop() {
 //First we gate on if the PIR sensor has seen movement for at least 50 loop-times
 //int alarm = digitalRead(20);
 int alarm = HIGH; //for debugging
-Serial.print("Loop count is ");
-Serial.println(PIRcount);
+//Serial.print("Loop count is ");
+//Serial.println(PIRcount);
 
 if (alarm == LOW) {
   if (PIRcount > 0){
@@ -114,13 +114,13 @@ if (alarm == LOW) {
 
   if(PIRcount > 50){ //Here's where the threshold is set for number of loops before assuming a person is in front of the sensor
     PIRcount = 0; //Reset the counter
-    Serial.println("Opening flower");
+    //Serial.println("Opening flower");
     digitalWrite(2, HIGH); //Tell main board we saw outer prox thresh
     myservo.write(openPos); //Open the flower
 //Now let's check the other prox sensor
     
     
-    while(getprox(100000000)){ //Threshold for deciding we've seen a person
+    while(getultrasound() < 12){ //Threshold for deciding we've seen a person
         digitalWrite(1, HIGH); //tell the main board we saw inner prox thresh
         windvec[windex] = getwind(); //update the list of the last 10 wind measurements
         windex++;
@@ -365,7 +365,7 @@ float getwind(){
 
 //  Serial.print("   WindSpeed MPH ");
   
-  Serial.println((float)WindSpeed_MPH);
+  //Serial.println((float)WindSpeed_MPH);
   uint32_t range = (WindThresh+100) - WindThresh;
   uint32_t windColor = (WindSpeed_MPH - WindThresh) / range * 255;
   strip.setPixelColor(0, min(windColor, 255));
@@ -396,4 +396,10 @@ int analyze(float wind){
 //  if(avg > WindThresh
 //}
 
+int getultrasound(){
+  float val = analogRead(17);
+  val = val/2;
+  //Serial.println(val);
+  return val;
+}
 
