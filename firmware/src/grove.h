@@ -4,7 +4,7 @@
 #include <QuadraticEase.h>
 #include <SineEase.h>
 
-#define CAMPLIGHTS 1
+#define CAMPLIGHTS 0
 
 // ===================
 // = Pin Definitions =
