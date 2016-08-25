@@ -5,7 +5,6 @@ float lowAvg = 700;
 float highAvgFactor = 0.98;
 float highAvg = 700;
 
-
 void setup() { 
     Serial.begin(9600);
 
@@ -13,6 +12,9 @@ void setup() {
     leds.show();
 
     pinMode(PIR_PIN, INPUT_PULLUP);
+    pinMode(SERVO_PIN, OUTPUT);
+    servo.attach(SERVO_PIN); //set up the servo on pin 3
+    servo.write(servoClosePos); //Close flower to start
 
 #ifdef USE_IR_PROX
     if (!pulse.isPresent()) {
@@ -20,7 +22,7 @@ void setup() {
       Serial.println(SI114_PIN);
     }
     pulse.initPulsePlug(); //Initialize I2C bus
-    pulse.setLEDcurrents(6, 6, 6); //set prox sensor LED currents
+    pulse.setLEDcurrents(7, 7, 7); //set prox sensor LED currents
     pulse.setLEDdrive(1, 2, 4); //set which LEDs are active on which pulse
 #endif
 }
@@ -107,11 +109,17 @@ void runWindAvgs() {
 }
 
 void loop() {
-    setOnboardLEDs(255, 0, 100);
+    // printProx();
+    setOnboardLEDs(255, 255, 0);
+    // Serial.println(getUltrasonic(), DEC);
+    servo.write(servoClosePos); //Close flower to start
+    delay(3000);
+    servo.write(servoOpenPos);
+    delay(3000);
 
-    runWindAvgs();
+    // runWindAvgs();
 
-    Serial.println((int)(highAvg-lowAvg), DEC);
+    // Serial.println((int)(highAvg-lowAvg), DEC);
 
-    delay(20);
+    // delay(20);
 }
