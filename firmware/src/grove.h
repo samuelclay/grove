@@ -28,7 +28,7 @@ const int config = WS2811_GRB | WS2811_800kHz;
 // Number of LEDs for each drip.
 #if CAMPLIGHTS
 const int32_t REST_DRIP_WIDTH_MIN = 30;
-const int32_t REST_DRIP_WIDTH_MAX = 7500;
+const int32_t REST_DRIP_WIDTH_MAX = 75000;
 #else
 const int32_t REST_DRIP_WIDTH_MIN = 12;
 const int32_t REST_DRIP_WIDTH_MAX = 30;
