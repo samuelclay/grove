@@ -262,7 +262,7 @@ void drawDrip(int d, int dripStart, int dripColor) {
         Serial.print("<>");
         Serial.print(dripTail);
         Serial.print(". ");
-        Serial.print(ledsPerStrip - dripHeadPosition);
+        Serial.print(ledsPerStrip - dripTail);
         Serial.print(" < ");
         Serial.print(furthestBreathPosition);
         Serial.print(". ");
@@ -275,7 +275,7 @@ void drawDrip(int d, int dripStart, int dripColor) {
         // double tailDecay = 1 - REST_DRIP_DECAY*i/tail;
         // Serial.println(i);
         // if (i > ledsPerStrip || i < 0) continue;
-        if (i > furthestBreathPosition && furthestBreathPosition != 0) continue;
+        if ((ledsPerStrip - i) <= furthestBreathPosition && furthestBreathPosition != 0) continue;
 
         int t = millis();
         int positionMultipler = 2;
@@ -304,7 +304,7 @@ void drawDrip(int d, int dripStart, int dripColor) {
         leds.setPixel(ledsPerStrip*3+(ledsPerStrip - i), color);
     }
     
-    if ((ledsPerStrip - dripHeadPosition) <= furthestBreathPosition && furthestBreathPosition != 0) {
+    if ((ledsPerStrip - dripTail) <= furthestBreathPosition && furthestBreathPosition != 0) {
         dripEaten[d] = true;
     }
     
@@ -395,7 +395,7 @@ void runLeaves() {
             int d = dripCount % DRIP_LIMIT;
             int latestDripIndex = d - 1;
             if (latestDripIndex < 0) latestDripIndex = DRIP_LIMIT - 1; // wrap around
-            if (breathState == STATE_RESTING || true) {
+            if (breathState == STATE_RESTING) {
                 float boost = 255 - center - width;
                 if (millis() - dripStarts[latestDripIndex] < boostDuration) {
                     // Linear boost up to max brightness
