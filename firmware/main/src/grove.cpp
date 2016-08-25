@@ -358,16 +358,16 @@ void drawBreath(int b, int breathStart) {
     // Serial.print(" >? ");
     // Serial.println(furthestBreathPosition);
     
-    int baseColor = 0xFFFFFF;
+    int baseColor = ROYALBLUE;
     int color;
 
     for (int i=head; i <= tail; i++) {
         // Head and tail pixel is the fractional fader
         color = baseColor;
         double tailDecay = 1 - BREATH_DECAY*i/tail;
-        uint8_t r = ((color & 0x320000) >> 16) * (i == head ? headFractional : i == tail ? tailFractional : tailDecay);
-        uint8_t g = ((color & 0x003200) >> 8) * (i == head ? headFractional : i == tail ? tailFractional : tailDecay);
-        uint8_t b = ((color & 0x000036) >> 0) * (i == head ? headFractional : i == tail ? tailFractional : tailDecay);
+        uint8_t r = ((color & 0xFF0000) >> 16) * (i == head ? headFractional : i == tail ? tailFractional : tailDecay);
+        uint8_t g = ((color & 0x00FF00) >> 8) * (i == head ? headFractional : i == tail ? tailFractional : tailDecay);
+        uint8_t b = ((color & 0x0000FF) >> 0) * (i == head ? headFractional : i == tail ? tailFractional : tailDecay);
         color = ((r<<16)&0xFF0000) | ((g<<8)&0x00FF00) | ((b<<0)&0x0000FF);
 
         leds.setPixel(ledsPerStrip*3+currentLed-i, color);
@@ -451,9 +451,19 @@ void runLeaves() {
 }
 
 void runBase() {
-    int color = 0x330000;
+    int color = ROYALBLUE;
+    int period = 2; // seconds
+    float brightnessMax = 0.5f;
+    float brightnessMin = 0.25f;
+    double progress = (millis() % (period * 1000)) / (period * 1000.f);
+    double multiplier = (sinTable[(int)ceil(progress * 360.f)] + 1)/2.f;
+    double brightness = multiplier * (brightnessMax - brightnessMin) + brightnessMin;
+    uint8_t r = ((color & 0xFF0000) >> 16) * brightness;
+    uint8_t g = ((color & 0x00FF00) >> 8) * brightness;
+    uint8_t b = ((color & 0x0000FF) >> 0) * brightness;
+    color = ((r<<16)&0xFF0000) | ((g<<8)&0x00FF00) | ((b<<0)&0x0000FF);
     
-    for (int i=0; i < ledsPerStrip; i++) {        
+    for (int i=0; i < ledsPerStrip; i++) {
         leds.setPixel(ledsPerStrip*0 + i, color);
     }
 }
