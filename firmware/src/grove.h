@@ -16,8 +16,8 @@ const int slaveSelectPin = 10;
 // ===========
 
 // A single 1m strip is 144 LEDs/m. 720 = 5m.
-// const int ledsPerStrip = 720;
-const int ledsPerStrip = 432;
+const int ledsPerStrip = 720;
+// const int ledsPerStrip = 432;
 
 DMAMEM int displayMemory[ledsPerStrip*6];
 int drawingMemory[ledsPerStrip*6];
