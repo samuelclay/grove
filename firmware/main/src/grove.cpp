@@ -451,9 +451,19 @@ void runLeaves() {
 }
 
 void runBase() {
-    int color = 0x330000;
+    int color = ROYALBLUE;
+    int period = 2; // seconds
+    float brightnessMax = 0.5f;
+    float brightnessMin = 0.25f;
+    double progress = (millis() % (period * 1000)) / (period * 1000.f);
+    double multiplier = (sinTable[(int)ceil(progress * 360.f)] + 1)/2.f;
+    double brightness = multiplier * (brightnessMax - brightnessMin) + brightnessMin;
+    uint8_t r = ((color & 0xFF0000) >> 16) * brightness;
+    uint8_t g = ((color & 0x00FF00) >> 8) * brightness;
+    uint8_t b = ((color & 0x0000FF) >> 0) * brightness;
+    color = ((r<<16)&0xFF0000) | ((g<<8)&0x00FF00) | ((b<<0)&0x0000FF);
     
-    for (int i=0; i < ledsPerStrip; i++) {        
+    for (int i=0; i < ledsPerStrip; i++) {
         leds.setPixel(ledsPerStrip*0 + i, color);
     }
 }
