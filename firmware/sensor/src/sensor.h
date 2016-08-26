@@ -16,6 +16,15 @@
 
 Adafruit_NeoPixel leds = Adafruit_NeoPixel(2, NEO_PIXEL_PIN, NEO_GRB + NEO_KHZ800);
 
+// LEDs
+
+int ledCloseColorR = 0, ledCloseColorG = 0, ledCloseColorB = 0;
+int ledOpenColorR = 255, ledOpenColorG = 255, ledOpenColorB = 0;
+
+
+const long fadeTime = 10000;
+long fadeStartTime = -2*fadeTime;
+bool isFadingInOrOut = false;
 // Servo
 
 Servo servo; 
@@ -23,12 +32,13 @@ Servo servo;
 const int servoClosePos = 35; // recommended servo angle to close the flower. (previous values used: 40)
 const int servoOpenPos = 110; // recommended servo angle to open the flower (previous values used: 130)
 
-const long servoMoveTime = 5000;
-long servoMoveStartTime = 0;
+const long flowerOpenTime = 5000;
+long flowerOpenStartTime = -2*flowerOpenTime;
+bool isOpenOrClosing = false;
+
 int servoTargetPosition = servoClosePos;
 int servoStartPosition = servoClosePos;
 int servoPosition = servoClosePos;
-bool servoAttached = false;
 
 // Wind
 

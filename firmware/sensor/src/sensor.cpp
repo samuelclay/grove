@@ -25,6 +25,14 @@ void setup() {
 #endif
 }
 
+void setOnboardLEDs(uint8_t rValue, uint8_t gValue, uint8_t bValue) {
+    for (int i = 0; i < 60; i++) {
+        leds.setPixelColor(0, rValue, gValue, bValue);
+        leds.setPixelColor(1, rValue, gValue, bValue);
+    }
+    leds.show();
+}
+
 int getRawWind() {
     return analogRead(RAW_VOLT_ANALOG_WING_SENSOR_PIN);
 }
@@ -36,28 +44,62 @@ int getRawWindTemp() {
 void openFlower() {
     servoTargetPosition = servoOpenPos;
     servoStartPosition = servoPosition;
-    servoMoveStartTime = millis();
+    flowerOpenStartTime = millis();
+    fadeStartTime = millis();
 }
 
 void closeFlower() {
     servoTargetPosition = servoClosePos;
     servoStartPosition = servoPosition;
-    servoMoveStartTime = millis();
+    flowerOpenStartTime = millis();
+    fadeStartTime = millis();
+}
+
+void updateLEDs() {
+    long deltaT = millis() - fadeStartTime;
+    if (deltaT <= fadeTime) {
+        if (!isFadingInOrOut) {
+            isFadingInOrOut = true;
+        }
+
+        setOnboardLEDs(
+            (ledOpenColorR - ledCloseColorR) * deltaT / fadeTime + ledCloseColorR,
+            (ledOpenColorG - ledCloseColorG) * deltaT / fadeTime + ledCloseColorG,
+            (ledOpenColorB - ledCloseColorB) * deltaT / fadeTime + ledCloseColorB
+        );   
+    } else {
+        if (isFadingInOrOut) {
+            if (overallState == STATE_OPEN) {
+                setOnboardLEDs(
+                    ledOpenColorR,
+                    ledOpenColorG,
+                    ledOpenColorB
+                );
+            } else {
+                setOnboardLEDs(
+                    ledCloseColorR,
+                    ledCloseColorG,
+                    ledCloseColorB
+                );
+            }
+            isFadingInOrOut = false;
+        }   
+    }
 }
 
 void updateFlowerServo() {
-    long deltaT = millis() - servoMoveStartTime;
-    if (deltaT <= servoMoveTime) {
-        if (!servoAttached) {
+    long deltaT = millis() - flowerOpenStartTime;
+    if (deltaT <= flowerOpenTime) {
+        if (!isOpenOrClosing) {
             servo.attach(SERVO_PIN); //set up the servo on pin 3
-            servoAttached = true;
+            isOpenOrClosing = true;
         }
-        servoPosition = (servoTargetPosition - servoStartPosition) * deltaT / servoMoveTime + servoStartPosition;
+        servoPosition = (servoTargetPosition - servoStartPosition) * deltaT / flowerOpenTime + servoStartPosition;
         servo.write(servoPosition); //Close flower to start
     } else {
-        if (servoAttached) {
+        if (isOpenOrClosing) {
             servo.detach();
-            servoAttached = false;
+            isOpenOrClosing = false;
         }   
     }
 }
@@ -119,14 +161,6 @@ int getUltrasonic(){
     return analogRead(ULTRASONIC_ANALOG_PIN);
 }
 
-void setOnboardLEDs(uint8_t rValue, uint8_t gValue, uint8_t bValue) {
-    for (int i = 0; i < 60; i++) {
-        leds.setPixelColor(0, rValue, gValue, bValue);
-        leds.setPixelColor(1, rValue, gValue, bValue);
-    }
-    leds.show();
-}
-
 void runWindAvgs() {
     long now = millis();
     if (now - lastWindSampleTime > windSampleInterval) {
@@ -185,6 +219,7 @@ void updatePIR() {
         }
 
         pirState = newState;
+        pirState = PIR_ON;
 
         if (pirState == PIR_ON) {
             openTimeoutLastEvent = now;
@@ -263,6 +298,7 @@ void evaluateState() {
 
 void loop() {
     // setOnboardLEDs(255, 255, 0);
+    updateLEDs();
     updateFlowerServo();
     updatePIR();
     
