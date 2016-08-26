@@ -14,8 +14,6 @@ void setup() {
     servo.write(servoClosePos); //Close flower to start
     servo.detach();
 
-    delay(3000);
-
 #ifdef USE_IR_PROX
     if (!pulse.isPresent()) {
       Serial.print("No SI114x found on port ");
@@ -49,6 +47,15 @@ void openFlower() {
     servoTargetPosition = servoOpenPos;
     servoStartPosition = servoPosition;
     flowerOpenStartTime = millis();
+
+    ledStartColorR = ledCloseColorR;
+    ledStartColorG = ledCloseColorG;
+    ledStartColorB = ledCloseColorB;
+
+    ledEndColorR = ledOpenColorR;
+    ledEndColorG = ledOpenColorG;
+    ledEndColorB = ledOpenColorB;
+    
     fadeStartTime = millis();
 }
 
@@ -56,6 +63,15 @@ void closeFlower() {
     servoTargetPosition = servoClosePos;
     servoStartPosition = servoPosition;
     flowerOpenStartTime = millis();
+
+    ledStartColorR = ledOpenColorR;
+    ledStartColorG = ledOpenColorG;
+    ledStartColorB = ledOpenColorB;
+
+    ledEndColorR = ledCloseColorR;
+    ledEndColorG = ledCloseColorG;
+    ledEndColorB = ledCloseColorB;
+
     fadeStartTime = millis();
 }
 
@@ -67,9 +83,9 @@ void updateLEDs() {
         }
 
         setOnboardLEDs(
-            (ledOpenColorR - ledCloseColorR) * deltaT / fadeTime + ledCloseColorR,
-            (ledOpenColorG - ledCloseColorG) * deltaT / fadeTime + ledCloseColorG,
-            (ledOpenColorB - ledCloseColorB) * deltaT / fadeTime + ledCloseColorB
+            (ledEndColorR - ledStartColorR) * deltaT / fadeTime + ledStartColorR,
+            (ledEndColorG - ledStartColorG) * deltaT / fadeTime + ledStartColorG,
+            (ledEndColorB - ledStartColorB) * deltaT / fadeTime + ledStartColorB
         );   
     } else {
         if (isFadingInOrOut) {
@@ -196,11 +212,11 @@ int maxBpassHistory() {
 void runBreathDetection() {
     if (abs(bpassWind - maxBpassHistory()) > 6 && breathState == REST) {
         HWSERIAL.print("B");
-        // Serial.println("B");
+        Serial.println("B");
         breathState = BREATH;
     } else if (abs(bpassWind - maxBpassHistory()) < 3 && breathState == BREATH) {
         HWSERIAL.print("E");
-        // Serial.println("E");
+        Serial.println("E");
         breathState = REST;
     }
 }
@@ -210,6 +226,7 @@ void updatePIR() {
     if (now < 5000) return; // Let the PIR setup
     if (now - lastPIRSampleTime > pirSampleInterval) {
         int value = digitalRead(PIR_PIN);
+        // Serial.println(value);
 
         pirHistory[pirHistoryIndex] = value;
         pirHistoryIndex++;
@@ -225,7 +242,6 @@ void updatePIR() {
         }
 
         pirState = newState;
-        pirState = PIR_ON;
 
         if (pirState == PIR_ON) {
             openTimeoutLastEvent = now;
@@ -259,8 +275,6 @@ void updateProx() {
             isProximate = false;
         }
 
-        // Serial.print(isProximate);
-        // Serial.print(" - ");
         // Serial.println(runningAvg);
 
         if (isProximate) {
@@ -279,7 +293,7 @@ void evaluateState() {
             if (pirState == PIR_ON) {
                 overallState = STATE_OPEN;
                 HWSERIAL.print("O");
-                // Serial.println("O");
+                Serial.println("O");
                 openFlower();
             }
             break;
@@ -288,13 +302,13 @@ void evaluateState() {
             long now = millis();
             if (now - openTimeoutLastEvent > openTimeout) {
                 HWSERIAL.print("C");
-                // Serial.println("C");
+                Serial.println("C");
                 overallState = STATE_NEUTRAL;
                 closeFlower();
             } else if (isProx()) {
                 overallState = STATE_PROX;
                 HWSERIAL.print("P");
-                // Serial.println("P");
+                Serial.println("P");
             }
             break;
         }
@@ -302,7 +316,7 @@ void evaluateState() {
             if (!isProx()) {
                 overallState = STATE_OPEN;
                 HWSERIAL.print("F");
-                // Serial.println("F");
+                Serial.println("F");
             } else {
                 runBreathDetection();
             }

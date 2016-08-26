@@ -4,7 +4,7 @@
 #include <SPI.h>
 #include <SI114.h>
 
-#define USE_IR_PROX
+// #define USE_IR_PROX
 
 #define NEO_PIXEL_PIN 8
 #define ULTRASONIC_ANALOG_PIN 17
@@ -21,6 +21,8 @@ Adafruit_NeoPixel leds = Adafruit_NeoPixel(2, NEO_PIXEL_PIN, NEO_GRB + NEO_KHZ80
 int ledCloseColorR = 0, ledCloseColorG = 0, ledCloseColorB = 0;
 int ledOpenColorR = 255, ledOpenColorG = 255, ledOpenColorB = 0;
 
+int ledStartColorR = 0, ledStartColorG = 0, ledStartColorB = 0;
+int ledEndColorR = 255, ledEndColorG = 255, ledEndColorB = 0;
 
 const long fadeTime = 10000;
 long fadeStartTime = -2*fadeTime;
