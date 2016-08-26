@@ -85,12 +85,15 @@ PirState pirState = PIR_OFF;
 
 // Ultrasonic
 
-const long ultraThres = 250;
+const long ultraThresLow = 150;
+const long ultraThresHigh = 350;
 const long ultraSampleInterval = 20;
 long lastUltraSampleTime = 0;
 bool isProximate = false;
 
-#define ULTRA_HIST_LEN 10
+float runningAvg = 300;
+
+#define ULTRA_HIST_LEN 200
 int ultraHistoryIndex = 0;
 int ultraHistory[ULTRA_HIST_LEN];
 

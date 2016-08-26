@@ -125,116 +125,7 @@ float Tvect, x, y, angle = 0;
 unsigned long lastMillis, red, IR1, IR2;
 
 
-void printProx(){
-      delay(100);
-
-        unsigned long total=0, start;
-        int i=0;
-        red = 0;
-        IR1 = 0;
-        IR2 = 0;
-        total = 0;
-        start = millis();
-
-
-
-     while (i < samples){ 
-
-
-     #ifdef PRINT_AMBIENT_LIGHT_SAMPLING   
-
-            pulse.fetchData();    // gets ambient readings and LED (pulsed) readings
-
-     #else
-     
-            pulse.fetchLedData();    // gets just LED (pulsed) readings - bit faster
-
-     #endif
-            red += pulse.ps1;
-            IR1 += pulse.ps2;
-            IR2 += pulse.ps3;
-            i++;
-
-        }
-
-        red = red / i;  // get averages
-        IR1 = IR1 / i;
-        IR2 = IR2 / i;
-        total = red + IR1 + IR2;
-
-     #ifdef PRINT_AMBIENT_LIGHT_SAMPLING
-
-        Serial.print(pulse.resp, HEX);     // resp
-        Serial.print("\t");
-        Serial.print(pulse.als_vis);       //  ambient visible
-        Serial.print("\t");
-        Serial.print(pulse.als_ir);        //  ambient IR
-        Serial.print("\t");
-       
-     #endif
-     
-    #ifdef PRINT_RAW_LED_VALUES
-
-        Serial.print(red);
-        Serial.print("\t");
-        Serial.print(IR1);
-        Serial.print("\t");
-        Serial.print(IR2);
-        Serial.print("\t");
-        Serial.println((long)total);    
-        Serial.print("\t");      
-
-    #endif                                
-                                        
-
-    #ifdef SEND_TO_PROCESSING_SKETCH
-
-        /* Add LED values as vectors - treat each vector as a force vector at
-         * 0 deg, 120 deg, 240 deg respectively
-         * parse out x and y components of each vector
-         * y = sin(angle) * Vect , x = cos(angle) * Vect
-         * add vectors then use atan2() to get angle
-         * vector quantity from pythagorean theorem
-         */
-
-    Avect = IR1;
-    Bvect = red;
-    Cvect = IR2;
-
-    // cut off reporting if total reported from LED pulses is less than the ambient measurement
-    // eliminates noise when no signal is present
-    if (total > 900){    //determined empirically, you may need to adjust for your sensor or lighting conditions
-
-        x = (float)Avect -  (.5 * (float)Bvect ) - ( .5 * (float)Cvect); // integer math
-        y = (.866 * (float)Bvect) - (.866 * (float)Cvect);
-
-        angle = atan2((float)y, (float)x) * 57.296 + 180 ; // convert to degrees and lose the neg values
-        Tvect = (long)sqrt( x * x + y * y); 
-    }
-    else{  // report 0's if no signal (object) present above sensor
-     angle = 0;
-    Tvect = 0; 
-    total =  900;
-      
-    }
-
-    // angle is the resolved angle from vector addition of the three LED values
-    // Tvect is the vector amount from vector addition of the three LED values
-    // Basically a ratio of differences of LED values to each other
-    // total is just the total of raw LED amounts returned, proportional to the distance of objects from the sensor.
-
-
-
-    Serial.print(angle);
-    Serial.print("\t");
-    Serial.print(Tvect);
-    Serial.print("\t");
-    Serial.println(total);
-
-    #endif
-
-    delay(10);                               
-         
+void printProx() {         
 }
 
 float getWind() {
@@ -360,11 +251,20 @@ void updateProx() {
             average += ultraVal * 1.0f / ULTRA_HIST_LEN;
         }
 
-        if (average < ultraThres) {
-            openTimeoutLastEvent = now;
+        runningAvg = runningAvg * 0.95 + ultraVal*0.05;
+
+        if (runningAvg < ultraThresLow && !isProximate) {
             isProximate = true;
-        } else {
+        } else if(runningAvg > ultraThresHigh && isProximate) {
             isProximate = false;
+        }
+
+        // Serial.print(isProximate);
+        // Serial.print(" - ");
+        // Serial.println(runningAvg);
+
+        if (isProximate) {
+            openTimeoutLastEvent = now;
         }
     }
 }
@@ -412,16 +312,12 @@ void evaluateState() {
 }
 
 void loop() {
-    // setOnboardLEDs(255, 255, 0);
-    // updateLEDs();
-    // updateFlowerServo();
-    // updatePIR();
+    updateLEDs();
+    updateFlowerServo();
+    updatePIR();
     
-    // runWindAvgs();
-    // updateProx();
-    setOnboardLEDs(100, 100, 0);
-    delay(100);
-    printProx();
+    runWindAvgs();
+    updateProx();
 
-    // evaluateState();
+    evaluateState();
 }
