@@ -2,6 +2,7 @@
 
 void setup() { 
     Serial.begin(9600);
+    HWSERIAL.begin(9600);
 
     leds.begin();
     leds.show();
@@ -153,16 +154,16 @@ int maxBpassHistory() {
 
 void runBreathDetection() {
     if (abs(bpassWind - maxBpassHistory()) > 6 && bState == REST) {
-        Serial.println("Breath start");
+        HWSERIAL.print("B");
         bState = BREATH;
     } else if (abs(bpassWind - maxBpassHistory()) < 3 && bState == BREATH) {
-        Serial.println("Breath stop");
+        HWSERIAL.print("E");
         bState = REST;
     }
 }
 
-
 void loop() {
+    setOnboardLEDs(255, 255, 0);
     updateFlowerServo();
     runWindAvgs();
     runBreathDetection();

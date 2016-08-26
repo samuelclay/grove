@@ -50,6 +50,10 @@ breathState bState = REST;
 
 int windState = 0;
 
+// UART to mainboard
+
+#define HWSERIAL Serial1
+
 // IR prox
 
 #ifdef USE_IR_PROX
