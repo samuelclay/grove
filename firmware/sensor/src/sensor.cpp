@@ -14,14 +14,18 @@ void setup() {
     servo.write(servoClosePos); //Close flower to start
     servo.detach();
 
+    delay(3000);
+
 #ifdef USE_IR_PROX
     if (!pulse.isPresent()) {
-      Serial.print("No SI114x found on pin ");
-      Serial.println(SI114_PIN);
+      Serial.print("No SI114x found on port ");
+      Serial.println(SI114_PORT);
+    } else {
+        Serial.println("setup");
     }
     pulse.initPulsePlug(); //Initialize I2C bus
-    pulse.setLEDcurrents(7, 7, 7); //set prox sensor LED currents
-    pulse.setLEDdrive(1, 2, 4); //set which LEDs are active on which pulse
+    pulse.setLEDcurrents(6, 6, 6); //set prox sensor LED currents
+    pulse.setLEDdrive(4, 2, 1); //set which LEDs are active on which pulse
 #endif
 }
 
@@ -104,22 +108,133 @@ void updateFlowerServo() {
     }
 }
 
+const int samples = 4;            // samples for smoothing 1 to 10 seem useful
+                                  // increase for smoother waveform (with less resolution) 
+float Avect = 0.0; 
+float Bvect = 0.0;
+float Cvect = 0.0;
+float Tvect, x, y, angle = 0;
+
+
+// some printing options for experimentation (sketch is about the same)
+//#define SEND_TO_PROCESSING_SKETCH
+#define PRINT_RAW_LED_VALUES   // prints Raw LED values for debug or experimenting
+// #define PRINT_AMBIENT_LIGHT_SAMPLING   // also samples ambient slight (slightly slower)
+                                          // good for ambient light experiments, comparing output with ambient
+ 
+unsigned long lastMillis, red, IR1, IR2;
+
+
 void printProx(){
-    pulse.fetchLedData();
+      delay(100);
 
-    int red = pulse.ps1;
-    int IR1 = pulse.ps2;
-    int IR2 = pulse.ps3;
-    int total = red + IR1 + IR2;
+        unsigned long total=0, start;
+        int i=0;
+        red = 0;
+        IR1 = 0;
+        IR2 = 0;
+        total = 0;
+        start = millis();
 
-    Serial.print(red);
+
+
+     while (i < samples){ 
+
+
+     #ifdef PRINT_AMBIENT_LIGHT_SAMPLING   
+
+            pulse.fetchData();    // gets ambient readings and LED (pulsed) readings
+
+     #else
+     
+            pulse.fetchLedData();    // gets just LED (pulsed) readings - bit faster
+
+     #endif
+            red += pulse.ps1;
+            IR1 += pulse.ps2;
+            IR2 += pulse.ps3;
+            i++;
+
+        }
+
+        red = red / i;  // get averages
+        IR1 = IR1 / i;
+        IR2 = IR2 / i;
+        total = red + IR1 + IR2;
+
+     #ifdef PRINT_AMBIENT_LIGHT_SAMPLING
+
+        Serial.print(pulse.resp, HEX);     // resp
+        Serial.print("\t");
+        Serial.print(pulse.als_vis);       //  ambient visible
+        Serial.print("\t");
+        Serial.print(pulse.als_ir);        //  ambient IR
+        Serial.print("\t");
+       
+     #endif
+     
+    #ifdef PRINT_RAW_LED_VALUES
+
+        Serial.print(red);
+        Serial.print("\t");
+        Serial.print(IR1);
+        Serial.print("\t");
+        Serial.print(IR2);
+        Serial.print("\t");
+        Serial.println((long)total);    
+        Serial.print("\t");      
+
+    #endif                                
+                                        
+
+    #ifdef SEND_TO_PROCESSING_SKETCH
+
+        /* Add LED values as vectors - treat each vector as a force vector at
+         * 0 deg, 120 deg, 240 deg respectively
+         * parse out x and y components of each vector
+         * y = sin(angle) * Vect , x = cos(angle) * Vect
+         * add vectors then use atan2() to get angle
+         * vector quantity from pythagorean theorem
+         */
+
+    Avect = IR1;
+    Bvect = red;
+    Cvect = IR2;
+
+    // cut off reporting if total reported from LED pulses is less than the ambient measurement
+    // eliminates noise when no signal is present
+    if (total > 900){    //determined empirically, you may need to adjust for your sensor or lighting conditions
+
+        x = (float)Avect -  (.5 * (float)Bvect ) - ( .5 * (float)Cvect); // integer math
+        y = (.866 * (float)Bvect) - (.866 * (float)Cvect);
+
+        angle = atan2((float)y, (float)x) * 57.296 + 180 ; // convert to degrees and lose the neg values
+        Tvect = (long)sqrt( x * x + y * y); 
+    }
+    else{  // report 0's if no signal (object) present above sensor
+     angle = 0;
+    Tvect = 0; 
+    total =  900;
+      
+    }
+
+    // angle is the resolved angle from vector addition of the three LED values
+    // Tvect is the vector amount from vector addition of the three LED values
+    // Basically a ratio of differences of LED values to each other
+    // total is just the total of raw LED amounts returned, proportional to the distance of objects from the sensor.
+
+
+
+    Serial.print(angle);
     Serial.print("\t");
-    Serial.print(IR1);
+    Serial.print(Tvect);
     Serial.print("\t");
-    Serial.print(IR2);
-    Serial.print("\t");
-    Serial.println((long)total);    
-    Serial.print("\t");
+    Serial.println(total);
+
+    #endif
+
+    delay(10);                               
+         
 }
 
 float getWind() {
@@ -298,12 +413,15 @@ void evaluateState() {
 
 void loop() {
     // setOnboardLEDs(255, 255, 0);
-    updateLEDs();
-    updateFlowerServo();
-    updatePIR();
+    // updateLEDs();
+    // updateFlowerServo();
+    // updatePIR();
     
-    runWindAvgs();
-    updateProx();
+    // runWindAvgs();
+    // updateProx();
+    setOnboardLEDs(100, 100, 0);
+    delay(100);
+    printProx();
 
-    evaluateState();
+    // evaluateState();
 }

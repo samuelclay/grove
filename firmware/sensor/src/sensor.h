@@ -12,7 +12,7 @@
 #define TEMPERATURE_ANALOG_WIND_SENSOR_PIN 2
 #define PIR_PIN 20
 #define SERVO_PIN 3
-#define SI114_PIN 0
+#define SI114_PORT 0
 
 Adafruit_NeoPixel leds = Adafruit_NeoPixel(2, NEO_PIXEL_PIN, NEO_GRB + NEO_KHZ800);
 
@@ -97,7 +97,7 @@ int ultraHistory[ULTRA_HIST_LEN];
 // IR prox
 
 #ifdef USE_IR_PROX
-	PortI2C pulseI2C(SI114_PIN);
+	PortI2C pulseI2C(SI114_PORT);
 	PulsePlug pulse(pulseI2C);
 #endif
 
