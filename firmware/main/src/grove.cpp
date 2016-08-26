@@ -11,7 +11,8 @@ void setup() {
     SPI.begin(); 
 
     Serial.begin(9600); // USB is always 12 Mbit/sec
-
+    HWSERIAL.begin(9600);
+    
     clearDispatcher();
 
     return;
@@ -58,13 +59,22 @@ void loop() {
     addRandomDrip();
     advanceRestDrips();
     
+    listenSensor();
+    
+#if RANDOMBREATHS
     if (millis() % 60000 < 15000) {
         addBreath();
     }
+#else
+    if (detectedBreath) {
+        addBreath();
+    }
+#endif
     advanceBreaths();
     
     runLeaves();
     runBase();
+    
     
     leds.show();    
 }
@@ -143,7 +153,11 @@ void addRandomDrip() {
     }
 }
 
-bool hasNewBreath() {
+bool hasNewRandomBreath() {
+#if !RANDOMBREATHS
+    return false;
+#endif
+    
     if (activeBreath != -1) return false;
     
     if (millis() > lastNewBreathMs) {
@@ -155,24 +169,38 @@ bool hasNewBreath() {
     return false;
 }
 
-bool hasActiveBreath() {
+bool hasNewBreath() {
+    if (activeBreath != -1) return false;
+    
+    if (detectedBreath) {
+        Serial.println(" ---> hasNewBreath has detected a breath");
+        return true;
+    }
+    
+    return false;
+}
+
+bool hasActiveRandomBreath() {
     if (activeBreath == -1) return false;
     
     if (millis() < endActiveBreathMs) {
         return true;
     }
     
-    activeBreath = -1;
     return false;
+}
+
+bool hasActiveBreath() {
+    return detectedBreath;
 }
 
 void addBreath() {
     int b = breathCount % BREATH_LIMIT;
-    bool newBreath = hasNewBreath();
+    bool newBreath = hasNewBreath() || hasNewRandomBreath();
     
     if (newBreath) {
-        // Serial.print(" ---> New breath: ");
-        // Serial.println(b);
+        Serial.print(" ---> New breath: ");
+        Serial.println(b);
         breathStarts[b] = millis();
         breathPosition[b] = 0;
         breathWidth[b] = 1;
@@ -180,25 +208,25 @@ void addBreath() {
         breathEase[b].setTotalChangeInPosition(float(ledsPerStrip*2));
         breathCount++;
         activeBreath = breathCount % BREATH_LIMIT;
-    }
-
-    if (!newBreath && hasActiveBreath()) {
-        // Still breathing, so extend breath
-        int latestBreathIndex = b - 1;
-        if (latestBreathIndex < 0) latestBreathIndex = BREATH_LIMIT - 1; // wrap around
-        int latestBreathStart = breathStarts[latestBreathIndex];
-        // float progress = float(millis() - latestBreathStart) / float(BREATH_TRIP_MS);
-        float progress = breathEase[latestBreathIndex].easeOut(float(millis() - latestBreathStart)) / float(ledsPerStrip);
+    } else {
+        if (hasActiveRandomBreath() || hasActiveBreath()) {
+            // Still breathing, so extend breath
+            int latestBreathIndex = b - 1;
+            if (latestBreathIndex < 0) latestBreathIndex = BREATH_LIMIT - 1; // wrap around
+            int latestBreathStart = breathStarts[latestBreathIndex];
+            // float progress = float(millis() - latestBreathStart) / float(BREATH_TRIP_MS);
+            float progress = breathEase[latestBreathIndex].easeOut(float(millis() - latestBreathStart)) / float(ledsPerStrip);
         
-        breathWidth[latestBreathIndex] = ceil(progress * ledsPerStrip);
+            breathWidth[latestBreathIndex] = ceil(progress * ledsPerStrip);
         
-        // Serial.print(" ---> Active breath #");
-        // Serial.print(latestBreathIndex);
-        // Serial.print(": ");
-        // Serial.print(breathWidth[latestBreathIndex]);
-        // Serial.print(": ");
-    } else if (!newBreath) {
-        // Not actively breathing
+            Serial.print(" ---> Active breath #");
+            Serial.print(latestBreathIndex);
+            Serial.print(": ");
+            Serial.print(breathWidth[latestBreathIndex]);
+            Serial.print(": ");
+        } else {
+            // Not actively breathing
+        }
     }
     
 }
@@ -252,24 +280,24 @@ void drawDrip(int d, int dripStart, int dripColor) {
     windowHead = constrain(dripHeadPosition, 0, ledsPerStrip);
     windowTail = constrain(dripTail, 0, ledsPerStrip);
     if (d == 0) {
-        Serial.print(" ---> Drip #");
-        Serial.print(d);
-        Serial.print(": ");
-        Serial.print(progress);
-        Serial.print(" (");
-        Serial.print(float(millis() - dripStart));
-        Serial.print(") = ");
-        Serial.print(dripHeadPosition);
-        Serial.print("<>");
-        Serial.print(dripTail);
-        Serial.print(". ");
-        Serial.print(ledsPerStrip - dripTail);
-        Serial.print(" < ");
-        Serial.print(furthestBreathPosition);
-        Serial.print(". ");
-        Serial.print(windowHead);
-        Serial.print(" --> ");
-        Serial.println(windowTail);
+        // Serial.print(" ---> Drip #");
+        // Serial.print(d);
+        // Serial.print(": ");
+        // Serial.print(progress);
+        // Serial.print(" (");
+        // Serial.print(float(millis() - dripStart));
+        // Serial.print(") = ");
+        // Serial.print(dripHeadPosition);
+        // Serial.print("<>");
+        // Serial.print(dripTail);
+        // Serial.print(". ");
+        // Serial.print(ledsPerStrip - dripTail);
+        // Serial.print(" < ");
+        // Serial.print(furthestBreathPosition);
+        // Serial.print(". ");
+        // Serial.print(windowHead);
+        // Serial.print(" --> ");
+        // Serial.println(windowTail);
     }
     for (int32_t i=windowHead; i >= windowTail; i--) {
         // Head and tail pixel is the fractional fader
@@ -297,10 +325,10 @@ void drawDrip(int d, int dripStart, int dripColor) {
         color = ((r<<16)&0xFF0000) | ((g<<8)&0x00FF00) | ((b<<0)&0x0000FF);
         
         if (ledsPerStrip - i == 0) {
-            Serial.print(" Setting 0 pixel: ");
-            Serial.print(color);
-            Serial.print(" --> ");
-            Serial.println(i);
+            // Serial.print(" Setting 0 pixel: ");
+            // Serial.print(color);
+            // Serial.print(" --> ");
+            // Serial.println(i);
         }
         leds.setPixel(ledsPerStrip*3+(ledsPerStrip - i), color);
     }
@@ -416,6 +444,8 @@ void runLeaves() {
             
             if ((c-1)%3 == 0) {
                 dispatcher(c, max(70, brightness));
+            } else if ((c-1)%3 == 2) {
+                dispatcher(c, 0);
             }
         }
         
@@ -446,6 +476,24 @@ void runLeaves() {
             if ((c-1)%3 == 1) {
                 dispatcher(c, 0);
             }
+        }
+    }
+}
+
+void listenSensor() {
+    if (HWSERIAL.available() > 0) {
+        int incomingByte;
+        incomingByte = HWSERIAL.read();
+        // Serial.println(incomingByte);
+        
+        if (incomingByte == 'B') {
+            Serial.println(" ---> New breath");
+            detectedBreath = true;
+            addBreath();
+        } else if (incomingByte == 'E') {
+            Serial.println(" ---> Breath ended <---");
+            detectedBreath = false;
+            activeBreath = -1;
         }
     }
 }
