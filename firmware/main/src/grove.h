@@ -5,6 +5,7 @@
 #include <SineEase.h>
 
 #define CAMPLIGHTS 0
+#define RANDOMBREATHS 0
 
 // ===================
 // = Pin Definitions =
@@ -12,6 +13,7 @@
 
 const uint8_t treeAPin = 14;
 const int slaveSelectPin = 10;
+#define HWSERIAL Serial1
 
 // ===========
 // = Globals =
@@ -30,8 +32,8 @@ const int config = WS2811_GRB | WS2811_800kHz;
 const int32_t REST_DRIP_WIDTH_MIN = 30;
 const int32_t REST_DRIP_WIDTH_MAX = 75000;
 #else
-const int32_t REST_DRIP_WIDTH_MIN = 12;
-const int32_t REST_DRIP_WIDTH_MAX = 30;
+const int32_t REST_DRIP_WIDTH_MIN = 4;
+const int32_t REST_DRIP_WIDTH_MAX = 40;
 #endif
 const int32_t REST_DRIP_DELAY_MIN = 100;
 const int32_t REST_DRIP_DELAY_MAX = 200;
@@ -67,6 +69,7 @@ unsigned int endActiveBreathMs = 0;
 int furthestBreathPosition = 0;
 unsigned int breathBoostStart = 0;
 unsigned int breathFallingStart = 0;
+bool detectedBreath;
 
 QuadraticEase dripEase[DRIP_LIMIT];
 QuadraticEase breathEase[BREATH_LIMIT];
@@ -112,6 +115,7 @@ void setDispatcherGlobalRGB(uint8_t rValue, uint8_t gValue, uint8_t bValue);
 uint8_t flipByte(uint8_t val);
 void runLeaves();
 void runBase();
+void listenSensor();
 
 /**   
 * \par   
