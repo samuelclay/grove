@@ -5,6 +5,13 @@ float lowAvg = 700;
 float highAvgFactor = 0.98;
 float highAvg = 700;
 
+const long servoMoveTime = 5000;
+long servoMoveStartTime = 0;
+int servoTargetPosition = servoClosePos;
+int servoStartPosition = servoClosePos;
+int servoPosition = servoClosePos;
+bool servoAttached = false;
+
 void setup() { 
     Serial.begin(9600);
 
@@ -15,6 +22,7 @@ void setup() {
     pinMode(SERVO_PIN, OUTPUT);
     servo.attach(SERVO_PIN); //set up the servo on pin 3
     servo.write(servoClosePos); //Close flower to start
+    servo.detach();
 
 #ifdef USE_IR_PROX
     if (!pulse.isPresent()) {
@@ -35,6 +43,35 @@ int getRawWindTemp() {
     return analogRead(TEMPERATURE_ANALOG_WIND_SENSOR_PIN);
 }
 
+void openFlower() {
+    servoTargetPosition = servoOpenPos;
+    servoStartPosition = servoPosition;
+    servoMoveStartTime = millis();
+}
+
+void closeFlower() {
+    servoTargetPosition = servoClosePos;
+    servoStartPosition = servoPosition;
+    servoMoveStartTime = millis();
+}
+
+void updateFlowerServo() {
+    long deltaT = millis() - servoMoveStartTime;
+    if (deltaT <= servoMoveTime) {
+        if (!servoAttached) {
+            servo.attach(SERVO_PIN); //set up the servo on pin 3
+            servoAttached = true;
+        }
+        servoPosition = (servoTargetPosition - servoStartPosition) * deltaT / servoMoveTime + servoStartPosition;
+        Serial.println(servoPosition);
+        servo.write(servoPosition); //Close flower to start
+    } else {
+        if (servoAttached) {
+            servo.detach();
+            servoAttached = false;
+        }   
+    }
+}
 
 void printProx(){
     pulse.fetchLedData();
@@ -108,14 +145,28 @@ void runWindAvgs() {
     highAvg = highAvg * highAvgFactor + raw * (1 - highAvgFactor);
 }
 
+int state = 0;
+
 void loop() {
-    // printProx();
-    setOnboardLEDs(255, 255, 0);
-    // Serial.println(getUltrasonic(), DEC);
-    servo.write(servoClosePos); //Close flower to start
-    delay(3000);
-    servo.write(servoOpenPos);
-    delay(3000);
+    updateFlowerServo();
+    delay(2);
+
+    if (millis() > 1000 && state == 0) {
+        openFlower();
+        state = 1;
+    }
+
+    if (millis() > 10000 && state == 1) {
+        closeFlower();
+        state = 2;
+    }
+    // // printProx();
+    // setOnboardLEDs(255, 255, 0);
+    // // Serial.println(getUltrasonic(), DEC);
+    // servo.write(servoClosePos); //Close flower to start
+    // delay(3000);
+    // servo.write(servoOpenPos);
+    // delay(3000);
 
     // runWindAvgs();
 
