@@ -32,6 +32,7 @@ bool servoAttached = false;
 
 // Wind
 
+long lastWindSampleTime = 0;
 float lowWindAvgFactor = 0.9;
 float lowWindAvg = 700;
 float highWindAvgFactor = 0.98;

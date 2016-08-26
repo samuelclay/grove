@@ -126,15 +126,21 @@ void setOnboardLEDs(uint8_t rValue, uint8_t gValue, uint8_t bValue) {
 }
 
 void runWindAvgs() {
-    int raw = getRawWind();
+    long now = millis();
+    if (now - lastWindSampleTime > 20) {
+        // Currently tuned to sample every 20ms roughly
+        int raw = getRawWind();
 
-    lowWindAvg = lowWindAvg * lowWindAvgFactor + raw * (1 - lowWindAvgFactor);
-    highWindAvg = highWindAvg * highWindAvgFactor + raw * (1 - highWindAvgFactor);
+        lowWindAvg = lowWindAvg * lowWindAvgFactor + raw * (1 - lowWindAvgFactor);
+        highWindAvg = highWindAvg * highWindAvgFactor + raw * (1 - highWindAvgFactor);
 
-    bpassWind = (int)(highWindAvg-lowWindAvg);
-    bpassHistory[bpassHistoryIndex] = bpassWind;
-    bpassHistoryIndex++;
-    if (bpassHistoryIndex >= BPASS_HIST_LEN) bpassHistoryIndex = 0;
+        bpassWind = (int)(highWindAvg-lowWindAvg);
+        bpassHistory[bpassHistoryIndex] = bpassWind;
+        bpassHistoryIndex++;
+        if (bpassHistoryIndex >= BPASS_HIST_LEN) bpassHistoryIndex = 0;
+
+        lastWindSampleTime = now;
+    }
 }
 
 int maxBpassHistory() {
@@ -145,11 +151,7 @@ int maxBpassHistory() {
     return maxVal;
 }
 
-void loop() {
-    updateFlowerServo();
-    runWindAvgs();
-
-    // Serial.println(bpassWind);
+void runBreathDetection() {
     if (abs(bpassWind - maxBpassHistory()) > 6 && bState == REST) {
         Serial.println("Breath start");
         bState = BREATH;
@@ -157,6 +159,11 @@ void loop() {
         Serial.println("Breath stop");
         bState = REST;
     }
+}
 
-    delay(20);
+
+void loop() {
+    updateFlowerServo();
+    runWindAvgs();
+    runBreathDetection();
 }
