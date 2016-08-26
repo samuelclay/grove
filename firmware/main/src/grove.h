@@ -38,6 +38,9 @@ const int32_t REST_DRIP_WIDTH_MAX = 40;
 const int32_t REST_DRIP_DELAY_MIN = 100;
 const int32_t REST_DRIP_DELAY_MAX = 200;
 
+const int32_t BASE_PIR_FADE_IN = 2000;
+const int32_t BASE_PIR_FADE_OUT = 5000;
+
 // Amount of color fade from front-to-back of each drip.
 // Can probably increase this to 0.64 during Burning Man.
 const double REST_DRIP_DECAY = 0.64;
@@ -69,7 +72,7 @@ unsigned int endActiveBreathMs = 0;
 int furthestBreathPosition = 0;
 unsigned int breathBoostStart = 0;
 unsigned int breathFallingStart = 0;
-bool detectedBreath;
+bool detectedBreath = false;
 
 QuadraticEase dripEase[DRIP_LIMIT];
 QuadraticEase breathEase[BREATH_LIMIT];
@@ -84,6 +87,18 @@ typedef enum
     STATE_FALLING  = 2
 } state_breath_t;
 state_breath_t breathState;
+
+typedef enum
+{
+    STATE_PIR_INACTIVE  = 0,
+    STATE_PIR_ACTIVE  = 1,
+    STATE_PROX_NEAR  = 2,
+    STATE_BREATHING_ACTIVE  = 3,
+} state_proximity_t;
+state_proximity_t proximityState;
+
+unsigned long pirStart = 0;
+unsigned long pirEnd = 0;
 
 // ========
 // = LEDs =

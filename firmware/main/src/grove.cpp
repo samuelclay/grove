@@ -7,6 +7,7 @@ void setup() {
     randomSeed(analogRead(0));
     
     breathState = STATE_RESTING;
+    proximityState = STATE_PIR_INACTIVE;
     pinMode (slaveSelectPin, OUTPUT);
     SPI.begin(); 
 
@@ -66,7 +67,7 @@ void loop() {
         addBreath();
     }
 #else
-    if (detectedBreath) {
+    if (proximityState == STATE_BREATHING_ACTIVE && detectedBreath) {
         addBreath();
     }
 #endif
@@ -487,18 +488,39 @@ void listenSensor() {
         // Serial.println(incomingByte);
         
         if (incomingByte == 'B') {
+            // Breath started
             Serial.println(" ---> New breath");
             detectedBreath = true;
             addBreath();
+            proximityState = STATE_BREATHING_ACTIVE;
         } else if (incomingByte == 'E') {
+            // Breath ended
             Serial.println(" ---> Breath ended <---");
             detectedBreath = false;
             activeBreath = -1;
+        } else if (incomingByte == 'O') {
+            // PIR active
+            pirStart = millis();
+            if (proximityState == STATE_PIR_INACTIVE) {
+                proximityState = STATE_PIR_ACTIVE;
+            }
+        } else if (incomingByte == 'C') {
+            // PIR inactive
+            pirEnd = millis();
+            proximityState = STATE_PIR_INACTIVE;
+        } else if (incomingByte == 'P') {
+            // Proximity near
+            proximityState = STATE_PROX_NEAR;
+        } else if (incomingByte == 'F') {
+            // Proximity far
+            proximityState = STATE_PIR_ACTIVE;
         }
     }
 }
 
 void runBase() {
+    if (proximityState == STATE_PIR_INACTIVE && millis() - BASE_PIR_FADE_OUT > pirEnd) return;
+    
     int color = ROYALBLUE;
     int period = 2; // seconds
     float brightnessMax = 0.5f;
@@ -506,11 +528,20 @@ void runBase() {
     double progress = (millis() % (period * 1000)) / (period * 1000.f);
     double multiplier = (sinTable[(int)ceil(progress * 360.f)] + 1)/2.f;
     double brightness = multiplier * (brightnessMax - brightnessMin) + brightnessMin;
+    
+    if (millis() - BASE_PIR_FADE_IN < pirStart) {
+        double pirProgress = (millis() - pirStart) / float(BASE_PIR_FADE_IN);
+        brightness *= pirProgress;
+    } else if (millis() - BASE_PIR_FADE_OUT < pirEnd) {
+        double pirProgress = 1 - (millis() - pirStart) / float(BASE_PIR_FADE_IN);
+        brightness *= pirProgress;
+    }
+
     uint8_t r = ((color & 0xFF0000) >> 16) * brightness;
     uint8_t g = ((color & 0x00FF00) >> 8) * brightness;
     uint8_t b = ((color & 0x0000FF) >> 0) * brightness;
     color = ((r<<16)&0xFF0000) | ((g<<8)&0x00FF00) | ((b<<0)&0x0000FF);
-    
+
     for (int i=0; i < ledsPerStrip; i++) {
         leds.setPixel(ledsPerStrip*0 + i, color);
     }
