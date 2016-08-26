@@ -38,6 +38,7 @@ float lowWindAvg = 700;
 float highWindAvgFactor = 0.98;
 float highWindAvg = 700;
 int bpassWind = 0;
+
 #define BPASS_HIST_LEN 50
 int bpassHistoryIndex = 0;
 int bpassHistory[BPASS_HIST_LEN];
@@ -45,14 +46,29 @@ int bpassHistory[BPASS_HIST_LEN];
 typedef enum {
 	BREATH,
 	REST
-} breathState;
-breathState bState = REST;
+} BreathState;
+BreathState breathState = REST;
 
 int windState = 0;
 
 // UART to mainboard
 
 #define HWSERIAL Serial1
+
+// PIR
+
+long lastPIRSampleTime = 0;
+
+#define PIR_HIST_LEN 50
+int pirHistoryIndex = 0;
+int pirHistory[PIR_HIST_LEN];
+
+typedef enum {
+	PIR_ON,
+	PIR_OFF
+} PirState;
+
+PirState pirState = PIR_OFF;
 
 // IR prox
 

@@ -9,6 +9,7 @@ void setup() {
 
     pinMode(PIR_PIN, INPUT_PULLUP);
     pinMode(SERVO_PIN, OUTPUT);
+
     servo.attach(SERVO_PIN); //set up the servo on pin 3
     servo.write(servoClosePos); //Close flower to start
     servo.detach();
@@ -153,18 +154,54 @@ int maxBpassHistory() {
 }
 
 void runBreathDetection() {
-    if (abs(bpassWind - maxBpassHistory()) > 6 && bState == REST) {
+    if (abs(bpassWind - maxBpassHistory()) > 6 && breathState == REST) {
         HWSERIAL.print("B");
-        bState = BREATH;
-    } else if (abs(bpassWind - maxBpassHistory()) < 3 && bState == BREATH) {
+        breathState = BREATH;
+    } else if (abs(bpassWind - maxBpassHistory()) < 3 && breathState == BREATH) {
         HWSERIAL.print("E");
-        bState = REST;
+        breathState = REST;
+    }
+}
+
+void updatePIR() {
+    long now = millis();
+    if (now - lastPIRSampleTime > 20) {
+        int value = digitalRead(PIR_PIN);
+
+        // pirHistory[pirHistoryIndex] = value;
+        // pirHistoryIndex++;
+        // if (pirHistoryIndex >= PIR_HIST_LEN) pirHistoryIndex = 0;
+
+        PirState newPirState = value == 0 ? PIR_ON : PIR_OFF;
+        // for (int i = 0; i < PIR_HIST_LEN; i++) {
+        //     if (pirHistory[i] != 0) {
+        //         newPirState = PIR_OFF;
+        //         break;
+        //     }
+        // }
+
+        if (newPirState != pirState) {
+            pirState = newPirState;
+            switch (pirState) {
+                case PIR_ON: {
+                    // Serial.println("PIR trig");
+                    break;
+                }
+                case PIR_OFF: {
+                    // Serial.println("PIR quiet");
+                    break;
+                }
+            }
+        }
+
+        lastPIRSampleTime = now;
     }
 }
 
 void loop() {
-    setOnboardLEDs(255, 255, 0);
+    // setOnboardLEDs(255, 255, 0);
     updateFlowerServo();
     runWindAvgs();
     runBreathDetection();
+    updatePIR();
 }
