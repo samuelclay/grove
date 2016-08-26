@@ -1,17 +1,5 @@
 #include "sensor.h"
 
-float lowAvgFactor = 0.9;
-float lowAvg = 700;
-float highAvgFactor = 0.98;
-float highAvg = 700;
-
-const long servoMoveTime = 5000;
-long servoMoveStartTime = 0;
-int servoTargetPosition = servoClosePos;
-int servoStartPosition = servoClosePos;
-int servoPosition = servoClosePos;
-bool servoAttached = false;
-
 void setup() { 
     Serial.begin(9600);
 
@@ -63,7 +51,6 @@ void updateFlowerServo() {
             servoAttached = true;
         }
         servoPosition = (servoTargetPosition - servoStartPosition) * deltaT / servoMoveTime + servoStartPosition;
-        Serial.println(servoPosition);
         servo.write(servoPosition); //Close flower to start
     } else {
         if (servoAttached) {
@@ -141,36 +128,35 @@ void setOnboardLEDs(uint8_t rValue, uint8_t gValue, uint8_t bValue) {
 void runWindAvgs() {
     int raw = getRawWind();
 
-    lowAvg = lowAvg * lowAvgFactor + raw * (1 - lowAvgFactor);
-    highAvg = highAvg * highAvgFactor + raw * (1 - highAvgFactor);
+    lowWindAvg = lowWindAvg * lowWindAvgFactor + raw * (1 - lowWindAvgFactor);
+    highWindAvg = highWindAvg * highWindAvgFactor + raw * (1 - highWindAvgFactor);
+
+    bpassWind = (int)(highWindAvg-lowWindAvg);
+    bpassHistory[bpassHistoryIndex] = bpassWind;
+    bpassHistoryIndex++;
+    if (bpassHistoryIndex >= BPASS_HIST_LEN) bpassHistoryIndex = 0;
 }
 
-int state = 0;
+int maxBpassHistory() {
+    int maxVal = -1000000;
+    for (int i = 0; i < BPASS_HIST_LEN; i++) {
+        if (bpassHistory[i] > maxVal) maxVal = bpassHistory[i];
+    }
+    return maxVal;
+}
 
 void loop() {
     updateFlowerServo();
-    delay(2);
+    runWindAvgs();
 
-    if (millis() > 1000 && state == 0) {
-        openFlower();
-        state = 1;
+    // Serial.println(bpassWind);
+    if (abs(bpassWind - maxBpassHistory()) > 6 && bState == REST) {
+        Serial.println("Breath start");
+        bState = BREATH;
+    } else if (abs(bpassWind - maxBpassHistory()) < 3 && bState == BREATH) {
+        Serial.println("Breath stop");
+        bState = REST;
     }
 
-    if (millis() > 10000 && state == 1) {
-        closeFlower();
-        state = 2;
-    }
-    // // printProx();
-    // setOnboardLEDs(255, 255, 0);
-    // // Serial.println(getUltrasonic(), DEC);
-    // servo.write(servoClosePos); //Close flower to start
-    // delay(3000);
-    // servo.write(servoOpenPos);
-    // delay(3000);
-
-    // runWindAvgs();
-
-    // Serial.println((int)(highAvg-lowAvg), DEC);
-
-    // delay(20);
+    delay(20);
 }
