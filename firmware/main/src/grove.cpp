@@ -280,6 +280,9 @@ void drawDrip(int d, int dripStart, int dripColor) {
 
     windowHead = constrain(dripHeadPosition, 0, ledsPerStrip);
     windowTail = constrain(dripTail, 0, ledsPerStrip);
+    
+    if (windowHead == windowTail) return;
+
     if (d == 0) {
         // Serial.print(" ---> Drip #");
         // Serial.print(d);
@@ -325,8 +328,10 @@ void drawDrip(int d, int dripStart, int dripColor) {
             (i == dripHeadPosition ? headFractional : i == dripTail ? tailFractional : tailDecay);
         color = ((r<<16)&0xFF0000) | ((g<<8)&0x00FF00) | ((b<<0)&0x0000FF);
         
-        if (ledsPerStrip - i == 0) {
-            // Serial.print(" Setting 0 pixel: ");
+        if (d == 0 && ledsPerStrip - i == 0) {
+            // Serial.print(" Setting 0 pixel (drip #");
+            // Serial.print(d);
+            // Serial.print("): ");
             // Serial.print(color);
             // Serial.print(" --> ");
             // Serial.println(i);

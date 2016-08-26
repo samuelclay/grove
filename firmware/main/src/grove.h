@@ -19,27 +19,28 @@ const int slaveSelectPin = 10;
 // = Globals =
 // ===========
 
-// A single 1m strip is 144 LEDs/m. 720 = 5m.
-const int ledsPerStrip = 720;
-// const int ledsPerStrip = 432;
-
-DMAMEM int displayMemory[ledsPerStrip*6];
-int drawingMemory[ledsPerStrip*6];
-const int config = WS2811_GRB | WS2811_800kHz;
-
-// Number of LEDs for each drip.
 #if CAMPLIGHTS
 const int32_t REST_DRIP_WIDTH_MIN = 30;
-const int32_t REST_DRIP_WIDTH_MAX = 75000;
+const int32_t REST_DRIP_WIDTH_MAX = 2000;
+const int ledsPerStrip = 720;
 #else
 const int32_t REST_DRIP_WIDTH_MIN = 4;
 const int32_t REST_DRIP_WIDTH_MAX = 40;
+const int ledsPerStrip = 720;
 #endif
 const int32_t REST_DRIP_DELAY_MIN = 100;
 const int32_t REST_DRIP_DELAY_MAX = 200;
 
 const int32_t BASE_PIR_FADE_IN = 2000;
 const int32_t BASE_PIR_FADE_OUT = 5000;
+
+// A single 1m strip is 144 LEDs/m. 720 = 5m.
+// const int ledsPerStrip = 432;
+
+DMAMEM int displayMemory[ledsPerStrip*6];
+int drawingMemory[ledsPerStrip*6];
+const int config = WS2811_GRB | WS2811_800kHz;
+
 
 // Amount of color fade from front-to-back of each drip.
 // Can probably increase this to 0.64 during Burning Man.
