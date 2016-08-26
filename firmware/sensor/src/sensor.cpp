@@ -129,7 +129,7 @@ void setOnboardLEDs(uint8_t rValue, uint8_t gValue, uint8_t bValue) {
 
 void runWindAvgs() {
     long now = millis();
-    if (now - lastWindSampleTime > 20) {
+    if (now - lastWindSampleTime > windSampleInterval) {
         // Currently tuned to sample every 20ms roughly
         int raw = getRawWind();
 
@@ -156,30 +156,74 @@ int maxBpassHistory() {
 void runBreathDetection() {
     if (abs(bpassWind - maxBpassHistory()) > 6 && breathState == REST) {
         HWSERIAL.print("B");
+        Serial.println("B");
         breathState = BREATH;
     } else if (abs(bpassWind - maxBpassHistory()) < 3 && breathState == BREATH) {
         HWSERIAL.print("E");
+        Serial.println("E");
         breathState = REST;
     }
 }
 
 void updatePIR() {
     long now = millis();
-    if (now - lastPIRSampleTime > 20) {
+    if (now < 5000) return; // Let the PIR setup
+    if (now - lastPIRSampleTime > pirSampleInterval) {
         int value = digitalRead(PIR_PIN);
-        pirState = value == 0 ? PIR_ON : PIR_OFF;
 
-        openTimeoutLastEvent = now;
+        pirHistory[pirHistoryIndex] = value;
+        pirHistoryIndex++;
+        if (pirHistoryIndex >= PIR_HIST_LEN) pirHistoryIndex = 0;
+
+        PirState newState = PIR_ON;
+
+        for (int i = 0; i < PIR_HIST_LEN; i++) {
+            if (pirHistory[i] == 1) {
+                newState = PIR_OFF;
+                break;
+            }
+        }
+
+        pirState = newState;
+
+        if (pirState == PIR_ON) {
+            openTimeoutLastEvent = now;
+        }
+
+        Serial.print(overallState);
+        Serial.print( " - ");
+        Serial.println(pirState);
         lastPIRSampleTime = now;
     }
 }
 
 void updateProx() {
+    long now = millis();
+    if (now - lastUltraSampleTime > ultraSampleInterval) {
+        int ultraVal = getUltrasonic();
 
+        ultraHistory[ultraHistoryIndex] = ultraVal;
+        ultraHistoryIndex++;
+        if (ultraHistoryIndex >= ULTRA_HIST_LEN) ultraHistoryIndex = 0;
+
+        lastUltraSampleTime = now;
+
+        float average = 0;
+        for (int i = 0; i < ULTRA_HIST_LEN; i++) {
+            average += ultraVal * 1.0f / ULTRA_HIST_LEN;
+        }
+
+        if (average < ultraThres) {
+            openTimeoutLastEvent = now;
+            isProximate = true;
+        } else {
+            isProximate = false;
+        }
+    }
 }
 
 bool isProx() {
-    return false;
+    return isProximate;
 }
 
 void evaluateState() {
@@ -188,6 +232,7 @@ void evaluateState() {
             if (pirState == PIR_ON) {
                 overallState = STATE_OPEN;
                 HWSERIAL.print("O");
+                Serial.println("O");
                 openFlower();
             }
             break;
@@ -196,11 +241,13 @@ void evaluateState() {
             long now = millis();
             if (now - openTimeoutLastEvent > openTimeout) {
                 HWSERIAL.print("C");
+                Serial.println("C");
                 overallState = STATE_NEUTRAL;
                 closeFlower();
             } else if (isProx()) {
                 overallState = STATE_PROX;
                 HWSERIAL.print("P");
+                Serial.println("P");
             }
             break;
         }
@@ -208,6 +255,7 @@ void evaluateState() {
             if (!isProx()) {
                 overallState = STATE_OPEN;
                 HWSERIAL.print("F");
+                Serial.println("F");
             } else {
                 runBreathDetection();
             }

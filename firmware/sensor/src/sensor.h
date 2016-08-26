@@ -32,6 +32,8 @@ bool servoAttached = false;
 
 // Wind
 
+const long windSampleInterval = 20;
+
 long lastWindSampleTime = 0;
 float lowWindAvgFactor = 0.9;
 float lowWindAvg = 700;
@@ -57,7 +59,12 @@ int windState = 0;
 
 // PIR
 
+const long pirSampleInterval = 20;
 long lastPIRSampleTime = 0;
+
+#define PIR_HIST_LEN 10
+int pirHistoryIndex = 0;
+int pirHistory[PIR_HIST_LEN];
 
 typedef enum {
 	PIR_ON,
@@ -65,6 +72,17 @@ typedef enum {
 } PirState;
 
 PirState pirState = PIR_OFF;
+
+// Ultrasonic
+
+const long ultraThres = 70;
+const long ultraSampleInterval = 20;
+long lastUltraSampleTime = 0;
+bool isProximate = false;
+
+#define ULTRA_HIST_LEN 10
+int ultraHistoryIndex = 0;
+int ultraHistory[ULTRA_HIST_LEN];
 
 // IR prox
 
@@ -82,5 +100,5 @@ typedef enum {
 } SystemState;
 
 SystemState overallState = STATE_NEUTRAL;
-const long openTimeout = 30*1000;
+const long openTimeout = 5*1000;
 long openTimeoutLastEvent = 0;
