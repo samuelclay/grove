@@ -167,41 +167,62 @@ void updatePIR() {
     long now = millis();
     if (now - lastPIRSampleTime > 20) {
         int value = digitalRead(PIR_PIN);
+        pirState = value == 0 ? PIR_ON : PIR_OFF;
 
-        // pirHistory[pirHistoryIndex] = value;
-        // pirHistoryIndex++;
-        // if (pirHistoryIndex >= PIR_HIST_LEN) pirHistoryIndex = 0;
-
-        PirState newPirState = value == 0 ? PIR_ON : PIR_OFF;
-        // for (int i = 0; i < PIR_HIST_LEN; i++) {
-        //     if (pirHistory[i] != 0) {
-        //         newPirState = PIR_OFF;
-        //         break;
-        //     }
-        // }
-
-        if (newPirState != pirState) {
-            pirState = newPirState;
-            switch (pirState) {
-                case PIR_ON: {
-                    // Serial.println("PIR trig");
-                    break;
-                }
-                case PIR_OFF: {
-                    // Serial.println("PIR quiet");
-                    break;
-                }
-            }
-        }
-
+        openTimeoutLastEvent = now;
         lastPIRSampleTime = now;
+    }
+}
+
+void updateProx() {
+
+}
+
+bool isProx() {
+    return false;
+}
+
+void evaluateState() {
+    switch (overallState) {
+        case STATE_NEUTRAL: {
+            if (pirState == PIR_ON) {
+                overallState = STATE_OPEN;
+                HWSERIAL.print("O");
+                openFlower();
+            }
+            break;
+        }
+        case STATE_OPEN: {
+            long now = millis();
+            if (now - openTimeoutLastEvent > openTimeout) {
+                HWSERIAL.print("C");
+                overallState = STATE_NEUTRAL;
+                closeFlower();
+            } else if (isProx()) {
+                overallState = STATE_PROX;
+                HWSERIAL.print("P");
+            }
+            break;
+        }
+        case STATE_PROX : {
+            if (!isProx()) {
+                overallState = STATE_OPEN;
+                HWSERIAL.print("F");
+            } else {
+                runBreathDetection();
+            }
+            break;
+        }
     }
 }
 
 void loop() {
     // setOnboardLEDs(255, 255, 0);
     updateFlowerServo();
-    runWindAvgs();
-    runBreathDetection();
     updatePIR();
+    
+    runWindAvgs();
+    updateProx();
+
+    evaluateState();
 }

@@ -59,10 +59,6 @@ int windState = 0;
 
 long lastPIRSampleTime = 0;
 
-#define PIR_HIST_LEN 50
-int pirHistoryIndex = 0;
-int pirHistory[PIR_HIST_LEN];
-
 typedef enum {
 	PIR_ON,
 	PIR_OFF
@@ -76,3 +72,15 @@ PirState pirState = PIR_OFF;
 	PortI2C pulseI2C(SI114_PIN);
 	PulsePlug pulse(pulseI2C);
 #endif
+
+// App flow
+
+typedef enum {
+	STATE_NEUTRAL,
+	STATE_OPEN,
+	STATE_PROX
+} SystemState;
+
+SystemState overallState = STATE_NEUTRAL;
+const long openTimeout = 30*1000;
+long openTimeoutLastEvent = 0;
