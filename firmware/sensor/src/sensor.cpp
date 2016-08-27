@@ -89,17 +89,17 @@ void updateLEDs() {
                 (ledEndColorB - ledStartColorB) * deltaT / fadeTime + ledStartColorB
             );   
         } else {
-            if (overallState == STATE_OPEN) {
-                setOnboardLEDs(
-                    ledOpenColorR,
-                    ledOpenColorG,
-                    ledOpenColorB
-                );
-            } else {
+            if (overallState == STATE_NEUTRAL) {
                 setOnboardLEDs(
                     ledCloseColorR,
                     ledCloseColorG,
                     ledCloseColorB
+                );
+            } else {
+                setOnboardLEDs(
+                    ledOpenColorR,
+                    ledOpenColorG,
+                    ledOpenColorB
                 );
             }
         }
