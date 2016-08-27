@@ -9,6 +9,8 @@ void setup() {
     breathState = STATE_RESTING;
     proximityState = STATE_PIR_INACTIVE;
     pinMode (slaveSelectPin, OUTPUT);
+    pinMode(PIR1_PIN, INPUT_PULLUP);
+
     SPI.begin(); 
 
     Serial.begin(9600); // USB is always 12 Mbit/sec
@@ -60,7 +62,10 @@ void loop() {
     addRandomDrip();
     advanceRestDrips();
     
-    listenSensor();
+    updatePIR(1);
+    updatePIR(2);
+    transmitSensor();
+    receiveSensor();
     
 #if RANDOMBREATHS
     if (millis() % 60000 < 15000) {
@@ -75,7 +80,6 @@ void loop() {
     
     runLeaves();
     runBase();
-    
     
     leds.show();    
 }
@@ -280,6 +284,9 @@ void drawDrip(int d, int dripStart, int dripColor) {
 
     windowHead = constrain(dripHeadPosition, 0, ledsPerStrip);
     windowTail = constrain(dripTail, 0, ledsPerStrip);
+    
+    if (windowHead == windowTail) return;
+
     if (d == 0) {
         // Serial.print(" ---> Drip #");
         // Serial.print(d);
@@ -325,8 +332,10 @@ void drawDrip(int d, int dripStart, int dripColor) {
             (i == dripHeadPosition ? headFractional : i == dripTail ? tailFractional : tailDecay);
         color = ((r<<16)&0xFF0000) | ((g<<8)&0x00FF00) | ((b<<0)&0x0000FF);
         
-        if (ledsPerStrip - i == 0) {
-            // Serial.print(" Setting 0 pixel: ");
+        if (d == 0 && ledsPerStrip - i == 0) {
+            // Serial.print(" Setting 0 pixel (drip #");
+            // Serial.print(d);
+            // Serial.print("): ");
             // Serial.print(color);
             // Serial.print(" --> ");
             // Serial.println(i);
@@ -407,6 +416,44 @@ void drawBreath(int b, int breathStart) {
     }
 }
 
+void updatePIR(int p) {
+    long now = millis();
+    if (now < 5000) return; // Let the PIR setup
+    if (now - lastPIRSampleTime[p] < pirSampleInterval) return;
+
+    int value = digitalRead(p == 1 ? PIR1_PIN : PIR2_PIN);
+    if (p == 1) value = !value; // Handle one active LOW and one active HIGH PIR sensor
+    Serial.print("PIR #");
+    Serial.print(p);
+    Serial.print(": ");
+    Serial.println(value);
+    
+    pirHistory[p][pirHistoryIndex[p]] = value;
+    pirHistoryIndex[p]++;
+    if (pirHistoryIndex[p] >= PIR_HIST_LEN) pirHistoryIndex[p] = 0;
+
+    PirState newState = PIR_ON;
+
+    for (int i = 0; i < PIR_HIST_LEN; i++) {
+        if (pirHistory[p][i] == 1) {
+            newState = PIR_OFF;
+            break;
+        }
+    }
+    
+    if (p == 1) {
+        pir1State = newState;
+    } else if (p == 2) {
+        pir2State = newState;
+    }
+
+    if (pir1State == PIR_ON || pir2State == PIR_ON) {
+        openTimeoutLastEvent = now;
+    }
+
+    lastPIRSampleTime[p] = now;
+}
+
 void runLeaves() {
     unsigned long boostDuration = 500;
     // Serial.print(" ---> Leaves: ");
@@ -481,7 +528,29 @@ void runLeaves() {
     }
 }
 
-void listenSensor() {
+void transmitSensor() {
+    switch (overallState) {
+        case STATE_NEUTRAL: {
+            if (pir1State == PIR_ON || pir2State == PIR_ON) {
+                overallState = STATE_OPEN;
+                HWSERIAL.print("O");
+                Serial.println("O");
+            }
+            break;
+        }
+        case STATE_OPEN: {
+            long now = millis();
+            if (now - openTimeoutLastEvent > openTimeout) {
+                HWSERIAL.print("C");
+                Serial.println("C");
+                overallState = STATE_NEUTRAL;
+            }
+            break;
+        }
+    }
+}
+
+void receiveSensor() {
     if (HWSERIAL.available() > 0) {
         int incomingByte;
         incomingByte = HWSERIAL.read();

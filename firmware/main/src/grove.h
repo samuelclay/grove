@@ -14,32 +14,35 @@
 const uint8_t treeAPin = 14;
 const int slaveSelectPin = 10;
 #define HWSERIAL Serial1
+#define PIR1_PIN 9
+#define PIR2_PIN 12
 
 // ===========
 // = Globals =
 // ===========
 
-// A single 1m strip is 144 LEDs/m. 720 = 5m.
-const int ledsPerStrip = 720;
-// const int ledsPerStrip = 432;
-
-DMAMEM int displayMemory[ledsPerStrip*6];
-int drawingMemory[ledsPerStrip*6];
-const int config = WS2811_GRB | WS2811_800kHz;
-
-// Number of LEDs for each drip.
 #if CAMPLIGHTS
 const int32_t REST_DRIP_WIDTH_MIN = 30;
-const int32_t REST_DRIP_WIDTH_MAX = 75000;
+const int32_t REST_DRIP_WIDTH_MAX = 2000;
+const int ledsPerStrip = 720;
 #else
 const int32_t REST_DRIP_WIDTH_MIN = 4;
 const int32_t REST_DRIP_WIDTH_MAX = 40;
+const int ledsPerStrip = 720;
 #endif
 const int32_t REST_DRIP_DELAY_MIN = 100;
 const int32_t REST_DRIP_DELAY_MAX = 200;
 
 const int32_t BASE_PIR_FADE_IN = 2000;
 const int32_t BASE_PIR_FADE_OUT = 5000;
+
+// A single 1m strip is 144 LEDs/m. 720 = 5m.
+// const int ledsPerStrip = 432;
+
+DMAMEM int displayMemory[ledsPerStrip*6];
+int drawingMemory[ledsPerStrip*6];
+const int config = WS2811_GRB | WS2811_800kHz;
+
 
 // Amount of color fade from front-to-back of each drip.
 // Can probably increase this to 0.64 during Burning Man.
@@ -112,6 +115,33 @@ OctoWS2811 leds(ledsPerStrip, displayMemory, drawingMemory, config);
 
 SPISettings dispatcherSPISettings(1e6, MSBFIRST, SPI_MODE3); 
 
+// PIR
+
+#define PIR_COUNT 2
+#define PIR_HIST_LEN 10
+
+const long pirSampleInterval = 20;
+long lastPIRSampleTime[PIR_COUNT];
+int pirHistoryIndex[PIR_COUNT];
+int pirHistory[PIR_COUNT][PIR_HIST_LEN];
+
+typedef enum {
+	PIR_ON,
+	PIR_OFF
+} PirState;
+
+PirState pir1State = PIR_OFF;
+PirState pir2State = PIR_OFF;
+long openTimeoutLastEvent = 0;
+const long openTimeout = 5*1000;
+
+typedef enum {
+	STATE_NEUTRAL,
+	STATE_OPEN
+} SystemState;
+
+SystemState overallState = STATE_NEUTRAL;
+
 // =============
 // = Functions =
 // =============
@@ -130,7 +160,9 @@ void setDispatcherGlobalRGB(uint8_t rValue, uint8_t gValue, uint8_t bValue);
 uint8_t flipByte(uint8_t val);
 void runLeaves();
 void runBase();
-void listenSensor();
+void transmitSensor();
+void receiveSensor();
+void updatePIR(int p);
 
 /**   
 * \par   
