@@ -88,7 +88,7 @@ PirState pirState = PIR_OFF;
 // Ultrasonic
 
 const long ultraThresLow = 150;
-const long ultraThresHigh = 350;
+const long ultraThresHigh = 200;
 const long ultraSampleInterval = 20;
 long lastUltraSampleTime = 0;
 bool isProximate = false;

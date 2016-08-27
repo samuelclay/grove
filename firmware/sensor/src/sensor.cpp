@@ -55,7 +55,7 @@ void openFlower() {
     ledEndColorR = ledOpenColorR;
     ledEndColorG = ledOpenColorG;
     ledEndColorB = ledOpenColorB;
-    
+
     fadeStartTime = millis();
 }
 
@@ -212,11 +212,11 @@ int maxBpassHistory() {
 void runBreathDetection() {
     if (abs(bpassWind - maxBpassHistory()) > 6 && breathState == REST) {
         HWSERIAL.print("B");
-        Serial.println("B");
+        // Serial.println("B");
         breathState = BREATH;
     } else if (abs(bpassWind - maxBpassHistory()) < 3 && breathState == BREATH) {
         HWSERIAL.print("E");
-        Serial.println("E");
+        // Serial.println("E");
         breathState = REST;
     }
 }
@@ -226,7 +226,6 @@ void updatePIR() {
     if (now < 5000) return; // Let the PIR setup
     if (now - lastPIRSampleTime > pirSampleInterval) {
         int value = digitalRead(PIR_PIN);
-        // Serial.println(value);
 
         pirHistory[pirHistoryIndex] = value;
         pirHistoryIndex++;
@@ -275,8 +274,6 @@ void updateProx() {
             isProximate = false;
         }
 
-        // Serial.println(runningAvg);
-
         if (isProximate) {
             openTimeoutLastEvent = now;
         }
@@ -293,7 +290,7 @@ void evaluateState() {
             if (pirState == PIR_ON) {
                 overallState = STATE_OPEN;
                 HWSERIAL.print("O");
-                Serial.println("O");
+                // Serial.println("O");
                 openFlower();
             }
             break;
@@ -302,13 +299,13 @@ void evaluateState() {
             long now = millis();
             if (now - openTimeoutLastEvent > openTimeout) {
                 HWSERIAL.print("C");
-                Serial.println("C");
+                // Serial.println("C");
                 overallState = STATE_NEUTRAL;
                 closeFlower();
             } else if (isProx()) {
                 overallState = STATE_PROX;
                 HWSERIAL.print("P");
-                Serial.println("P");
+                // Serial.println("P");
             }
             break;
         }
@@ -316,7 +313,7 @@ void evaluateState() {
             if (!isProx()) {
                 overallState = STATE_OPEN;
                 HWSERIAL.print("F");
-                Serial.println("F");
+                // Serial.println("F");
             } else {
                 runBreathDetection();
             }
@@ -332,6 +329,14 @@ void loop() {
     
     runWindAvgs();
     updateProx();
+
+    // if (millis() % 2000 < 1000) {
+    //     runBreathDetection();
+    // } else {
+    //     Serial.print(runningAvg);
+    //     Serial.print("\t");
+    //     Serial.println(pirState);
+    // }
 
     evaluateState();
 }
