@@ -223,7 +223,7 @@ void runBreathDetection() {
         breathState = BREATH;
     } else if (diffSum > -2 && breathState == BREATH) {
         HWSERIAL.print("E");
-        // Serial.println("E");
+        // Serial.printintln("E");
         breathState = REST;
     }
 }
@@ -271,7 +271,7 @@ void updateProx() {
         isProximate = false;
         for (int i = 0; i < ULTRA_HIST_LEN; i++) {
             if (ultraHistory[i] < ultraThres) {
-                isProximate = true;
+                jimate = true;
                 break;
             }
         }
@@ -285,18 +285,20 @@ bool isProx() {
 void evaluateState() {
     switch (overallState) {
         case STATE_NEUTRAL: {
-            if (pirState == PIR_ON) {
+            // if (pirState == PIR_ON) {
+            if (remoteState == STATE_OPEN) {
                 overallState = STATE_OPEN;
-                HWSERIAL.print("O");
+                // HWSERIAL.print("O");
                 // Serial.println("O");
                 openFlower();
             }
             break;
         }
         case STATE_OPEN: {
-            long now = millis();
-            if (now - openTimeoutLastEvent > openTimeout) {
-                HWSERIAL.print("C");
+            // long now = millis();
+            // if (now - openTimeoutLastEvent > openTimeout) {
+            if (remoteState == STATE_NEUTRAL) {
+                // HWSERIAL.print("C");
                 // Serial.println("C");
                 overallState = STATE_NEUTRAL;
                 closeFlower();
@@ -308,7 +310,12 @@ void evaluateState() {
             break;
         }
         case STATE_PROX : {
-            if (!isProx()) {
+            if (remoteState == STATE_NEUTRAL) {
+                // HWSERIAL.print("C");
+                // Serial.println("C");
+                overallState = STATE_NEUTRAL;
+                closeFlower();
+            } else if (!isProx()) {
                 overallState = STATE_OPEN;
                 HWSERIAL.print("F");
                 // Serial.println("F");
@@ -321,10 +328,24 @@ void evaluateState() {
 
 }
 
+void readRemoteState() {
+    if (HWSERIAL.available() > 0) {
+        int incomingByte;
+        incomingByte = HWSERIAL.read();
+        // Serial.println(incomingByte);
+        
+        if (incomingByte == 'O') {
+            remoteState = STATE_OPEN;
+        } else if (incomingByte == 'C') {
+            remoteState = STATE_NEUTRAL;
+        }
+    }
+
 void loop() {
+    readRemoteState();
     updateLEDs();
     updateFlowerServo();
-    updatePIR();
+    // updatePIR();
     
     runWindAvgs();
     updateProx();

@@ -124,6 +124,9 @@ typedef enum {
 } SystemState;
 
 SystemState overallState = STATE_NEUTRAL;
+
+SystemState remoteState = STATE_NEUTRAL;
+
 const long openTimeout = 5*1000;
 long openTimeoutLastEvent = 0;
 
