@@ -14,6 +14,8 @@
 const uint8_t treeAPin = 14;
 const int slaveSelectPin = 10;
 #define HWSERIAL Serial1
+#define PIR1_PIN 9
+#define PIR2_PIN 12
 
 // ===========
 // = Globals =
@@ -113,6 +115,33 @@ OctoWS2811 leds(ledsPerStrip, displayMemory, drawingMemory, config);
 
 SPISettings dispatcherSPISettings(1e6, MSBFIRST, SPI_MODE3); 
 
+// PIR
+
+#define PIR_COUNT 2
+#define PIR_HIST_LEN 10
+
+const long pirSampleInterval = 20;
+long lastPIRSampleTime[PIR_COUNT];
+int pirHistoryIndex[PIR_COUNT];
+int pirHistory[PIR_COUNT][PIR_HIST_LEN];
+
+typedef enum {
+	PIR_ON,
+	PIR_OFF
+} PirState;
+
+PirState pir1State = PIR_OFF;
+PirState pir2State = PIR_OFF;
+long openTimeoutLastEvent = 0;
+const long openTimeout = 5*1000;
+
+typedef enum {
+	STATE_NEUTRAL,
+	STATE_OPEN
+} SystemState;
+
+SystemState overallState = STATE_NEUTRAL;
+
 // =============
 // = Functions =
 // =============
@@ -131,7 +160,9 @@ void setDispatcherGlobalRGB(uint8_t rValue, uint8_t gValue, uint8_t bValue);
 uint8_t flipByte(uint8_t val);
 void runLeaves();
 void runBase();
-void listenSensor();
+void transmitSensor();
+void receiveSensor();
+void updatePIR(int p);
 
 /**   
 * \par   
