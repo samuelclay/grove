@@ -191,10 +191,13 @@ void runWindAvgs() {
         lowWindAvg = lowWindAvg * lowWindAvgFactor + raw * (1 - lowWindAvgFactor);
         highWindAvg = highWindAvg * highWindAvgFactor + raw * (1 - highWindAvgFactor);
 
+        lastBpassWind = bpassWind;
         bpassWind = (int)(highWindAvg-lowWindAvg);
-        bpassHistory[bpassHistoryIndex] = bpassWind;
-        bpassHistoryIndex++;
-        if (bpassHistoryIndex >= BPASS_HIST_LEN) bpassHistoryIndex = 0;
+
+        windHistory[windHistoryIndex] = bpassWind - lastBpassWind;
+        windHistoryIndex++;
+
+        if (windHistoryIndex >= WIND_HIST_LEN) windHistoryIndex = 0;
 
         lastWindSampleTime = now;
     }
@@ -202,18 +205,23 @@ void runWindAvgs() {
 
 int maxBpassHistory() {
     int maxVal = -1000000;
-    for (int i = 0; i < BPASS_HIST_LEN; i++) {
-        if (bpassHistory[i] > maxVal) maxVal = bpassHistory[i];
+    for (int i = 0; i < WIND_HIST_LEN; i++) {
+        if (windHistory[i] > maxVal) maxVal = windHistory[i];
     }
     return maxVal;
 }
 
 void runBreathDetection() {
-    if (abs(bpassWind - maxBpassHistory()) > 6 && breathState == REST) {
+    int diffSum = 0;
+    for (int i = 0; i < WIND_HIST_LEN; i++) {
+        diffSum += windHistory[i];
+    }
+
+    if (diffSum < -10 && breathState == REST) {
         HWSERIAL.print("B");
         // Serial.println("B");
         breathState = BREATH;
-    } else if (abs(bpassWind - maxBpassHistory()) < 3 && breathState == BREATH) {
+    } else if (diffSum > -2 && breathState == BREATH) {
         HWSERIAL.print("E");
         // Serial.println("E");
         breathState = REST;
@@ -321,6 +329,8 @@ void loop() {
     runWindAvgs();
     updateProx();
 
+    evaluateState();
+
     // if (millis() % 2000 < 1000) {
     //     runBreathDetection();
     // } else {
@@ -328,7 +338,5 @@ void loop() {
     //     Serial.print("\t");
     //     Serial.println(pirState);
     // }
-
-    evaluateState();
 
 }

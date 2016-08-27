@@ -51,15 +51,16 @@ int servoPosition = servoOpenPos;
 const long windSampleInterval = 20;
 
 long lastWindSampleTime = 0;
-float lowWindAvgFactor = 0.9;
+float lowWindAvgFactor = 0.6;
 float lowWindAvg = 700;
 float highWindAvgFactor = 0.98;
 float highWindAvg = 700;
 int bpassWind = 0;
+int lastBpassWind = 0;
 
-#define BPASS_HIST_LEN 50
-int bpassHistoryIndex = 0;
-int bpassHistory[BPASS_HIST_LEN];
+#define WIND_HIST_LEN 50
+int windHistoryIndex = 0;
+int windHistory[WIND_HIST_LEN];
 
 typedef enum {
 	BREATH,
