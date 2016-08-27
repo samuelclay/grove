@@ -11,7 +11,7 @@ void setup() {
     pinMode(SERVO_PIN, OUTPUT);
 
     servo.attach(SERVO_PIN); //set up the servo on pin 3
-    servo.write(servoClosePos); //Close flower to start
+    servo.write(servoOpenPos); //open flower to start
     servo.detach();
 
 #ifdef USE_IR_PROX
@@ -25,6 +25,8 @@ void setup() {
     pulse.setLEDcurrents(6, 6, 6); //set prox sensor LED currents
     pulse.setLEDdrive(4, 2, 1); //set which LEDs are active on which pulse
 #endif
+
+    closeFlower();
 }
 
 void setOnboardLEDs(uint8_t rValue, uint8_t gValue, uint8_t bValue) {
@@ -76,19 +78,17 @@ void closeFlower() {
 }
 
 void updateLEDs() {
-    long deltaT = millis() - fadeStartTime;
-    if (deltaT <= fadeTime) {
-        if (!isFadingInOrOut) {
-            isFadingInOrOut = true;
-        }
-
-        setOnboardLEDs(
-            (ledEndColorR - ledStartColorR) * deltaT / fadeTime + ledStartColorR,
-            (ledEndColorG - ledStartColorG) * deltaT / fadeTime + ledStartColorG,
-            (ledEndColorB - ledStartColorB) * deltaT / fadeTime + ledStartColorB
-        );   
-    } else {
-        if (isFadingInOrOut) {
+    long now = millis();
+    if (now - lastLedUpdateTime > ledUpdateInterval) {
+        lastLedUpdateTime = now;
+        long deltaT = now - fadeStartTime;
+        if (deltaT <= fadeTime) {
+            setOnboardLEDs(
+                (ledEndColorR - ledStartColorR) * deltaT / fadeTime + ledStartColorR,
+                (ledEndColorG - ledStartColorG) * deltaT / fadeTime + ledStartColorG,
+                (ledEndColorB - ledStartColorB) * deltaT / fadeTime + ledStartColorB
+            );   
+        } else {
             if (overallState == STATE_OPEN) {
                 setOnboardLEDs(
                     ledOpenColorR,
@@ -102,8 +102,7 @@ void updateLEDs() {
                     ledCloseColorB
                 );
             }
-            isFadingInOrOut = false;
-        }   
+        }
     }
 }
 
@@ -253,7 +252,7 @@ void updatePIR() {
 void updateProx() {
     long now = millis();
     if (now - lastUltraSampleTime > ultraSampleInterval) {
-        int ultraVal = getUltrasonic();
+        int ultraVal = (int)ultrasonic.Ranging(CM);
 
         ultraHistory[ultraHistoryIndex] = ultraVal;
         ultraHistoryIndex++;
@@ -261,21 +260,12 @@ void updateProx() {
 
         lastUltraSampleTime = now;
 
-        float average = 0;
+        isProximate = false;
         for (int i = 0; i < ULTRA_HIST_LEN; i++) {
-            average += ultraVal * 1.0f / ULTRA_HIST_LEN;
-        }
-
-        runningAvg = runningAvg * 0.95 + ultraVal*0.05;
-
-        if (runningAvg < ultraThresLow && !isProximate) {
-            isProximate = true;
-        } else if(runningAvg > ultraThresHigh && isProximate) {
-            isProximate = false;
-        }
-
-        if (isProximate) {
-            openTimeoutLastEvent = now;
+            if (ultraHistory[i] < ultraThres) {
+                isProximate = true;
+                break;
+            }
         }
     }
 }
@@ -320,6 +310,7 @@ void evaluateState() {
             break;
         }
     }
+
 }
 
 void loop() {
@@ -339,4 +330,5 @@ void loop() {
     // }
 
     evaluateState();
+
 }

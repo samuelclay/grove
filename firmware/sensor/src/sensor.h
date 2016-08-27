@@ -1,3 +1,4 @@
+#include <Ultrasonic.h>
 #include <Servo.h>
 #include <avr/power.h>
 #include <Adafruit_NeoPixel.h>
@@ -26,7 +27,10 @@ int ledEndColorR = 255, ledEndColorG = 255, ledEndColorB = 0;
 
 const long fadeTime = 10000;
 long fadeStartTime = -2*fadeTime;
-bool isFadingInOrOut = false;
+
+long ledUpdateInterval = 100;
+long lastLedUpdateTime = 0;
+
 // Servo
 
 Servo servo; 
@@ -38,9 +42,9 @@ const long flowerOpenTime = 5000;
 long flowerOpenStartTime = -2*flowerOpenTime;
 bool isOpenOrClosing = false;
 
-int servoTargetPosition = servoClosePos;
-int servoStartPosition = servoClosePos;
-int servoPosition = servoClosePos;
+int servoTargetPosition = servoOpenPos;
+int servoStartPosition = servoOpenPos;
+int servoPosition = servoOpenPos;
 
 // Wind
 
@@ -85,15 +89,19 @@ typedef enum {
 
 PirState pirState = PIR_OFF;
 
+// New Ultrasonic with two eyes
+
+#define ULTRASONIC_2_TRIG_PIN 5
+#define ULTRASONIC_2_ECHO_PIN 4
+
+Ultrasonic ultrasonic(ULTRASONIC_2_TRIG_PIN, ULTRASONIC_2_ECHO_PIN, 6000); // (Trig PIN, Echo PIN)
+
 // Ultrasonic
 
-const long ultraThresLow = 150;
-const long ultraThresHigh = 200;
-const long ultraSampleInterval = 20;
+const long ultraThres = 50;
+const long ultraSampleInterval = 100;
 long lastUltraSampleTime = 0;
 bool isProximate = false;
-
-float runningAvg = 300;
 
 #define ULTRA_HIST_LEN 200
 int ultraHistoryIndex = 0;
@@ -117,3 +125,6 @@ typedef enum {
 SystemState overallState = STATE_NEUTRAL;
 const long openTimeout = 5*1000;
 long openTimeoutLastEvent = 0;
+
+void closeFlower();
+void openFlower();
