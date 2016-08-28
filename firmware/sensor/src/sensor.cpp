@@ -268,10 +268,12 @@ void updateProx() {
 
         lastUltraSampleTime = now;
 
+        // Serial.println(ultraVal);
+
         isProximate = false;
         for (int i = 0; i < ULTRA_HIST_LEN; i++) {
             if (ultraHistory[i] < ultraThres) {
-                jimate = true;
+                isProximate = true;
                 break;
             }
         }
@@ -340,6 +342,7 @@ void readRemoteState() {
             remoteState = STATE_NEUTRAL;
         }
     }
+}
 
 void loop() {
     readRemoteState();
