@@ -75,7 +75,7 @@ void loop() {
         addBreath();
     }
 #else
-    if (proximityState == STATE_BREATHING_ACTIVE && detectedBreath) {
+    if (proximityState == STATE_PIR_ACTIVE && detectedBreath) {
         addBreath();
     }
 #endif
@@ -487,6 +487,9 @@ void updatePIR(int p) {
 
     if (pir1State == PIR_ON || pir2State == PIR_ON) {
         openTimeoutLastEvent = now;
+        proximityState = STATE_PIR_ACTIVE;
+    } else {
+        proximityState = STATE_PIR_INACTIVE;
     }
 
     lastPIRSampleTime[p] = now;

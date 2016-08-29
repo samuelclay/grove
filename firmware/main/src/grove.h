@@ -107,8 +107,6 @@ typedef enum
 {
     STATE_PIR_INACTIVE  = 0,
     STATE_PIR_ACTIVE  = 1,
-    STATE_PROX_NEAR  = 2,
-    STATE_BREATHING_ACTIVE  = 3,
 } state_proximity_t;
 state_proximity_t proximityState;
 
