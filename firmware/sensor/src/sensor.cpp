@@ -332,9 +332,9 @@ void evaluateState() {
 
 void readRemoteState() {
     if (HWSERIAL.available() > 0) {
-        int incomingByte;
+        uint8_t incomingByte;
         incomingByte = HWSERIAL.read();
-        // Serial.println(incomingByte);
+        // Serial.println(incomingByte, HEX);
         
         if (incomingByte == 'O') {
             remoteState = STATE_OPEN;

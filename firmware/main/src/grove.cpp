@@ -62,8 +62,8 @@ void loop() {
     addRandomDrip();
     advanceRestDrips();
     
+    updatePIR(0);
     updatePIR(1);
-    updatePIR(2);
     transmitSensor();
     receiveSensor();
     
@@ -421,12 +421,12 @@ void updatePIR(int p) {
     if (now < 5000) return; // Let the PIR setup
     if (now - lastPIRSampleTime[p] < pirSampleInterval) return;
 
-    int value = digitalRead(p == 1 ? PIR1_PIN : PIR2_PIN);
-    if (p == 1) value = !value; // Handle one active LOW and one active HIGH PIR sensor
-    Serial.print("PIR #");
-    Serial.print(p);
-    Serial.print(": ");
-    Serial.println(value);
+    int value = digitalRead(p == 0 ? PIR1_PIN : PIR2_PIN);
+    if (p == 0) value = !value; // Handle one active LOW and one active HIGH PIR sensor
+    // Serial.print("PIR #");
+    // Serial.print(p);
+    // Serial.print(": ");
+    // Serial.println(value);
     
     pirHistory[p][pirHistoryIndex[p]] = value;
     pirHistoryIndex[p]++;
@@ -435,7 +435,7 @@ void updatePIR(int p) {
     PirState newState = PIR_ON;
 
     for (int i = 0; i < PIR_HIST_LEN; i++) {
-        if (pirHistory[p][i] == 1) {
+        if (pirHistory[p][i] == 0) {
             newState = PIR_OFF;
             break;
         }
@@ -552,9 +552,9 @@ void transmitSensor() {
 
 void receiveSensor() {
     if (HWSERIAL.available() > 0) {
-        int incomingByte;
+        uint8_t incomingByte;
         incomingByte = HWSERIAL.read();
-        // Serial.println(incomingByte);
+        // Serial.println(incomingByte, HEX);
         
         if (incomingByte == 'B') {
             // Breath started
