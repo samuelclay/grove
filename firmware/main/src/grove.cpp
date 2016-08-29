@@ -205,16 +205,19 @@ bool hasNewBreath() {
     if (activeBreath != -1) return false;
     
     if (detectedBreath) {
-        // Serial.println(" ---> hasNewBreath has detected a breath");
+        Serial.println(" ---> hasNewBreath has detected a breath");
         return true;
     }
     
-    // Serial.println(" ---> No detected breath and no inactive breath");
+    Serial.println(" ---> No detected breath and no inactive breath");
     
     return false;
 }
 
 bool hasActiveRandomBreath() {
+#if !RANDOMBREATHS
+    return false;
+#endif
     if (activeBreath == -1) return false;
     
     if (millis() < endActiveBreathMs) {
@@ -240,8 +243,8 @@ void addBreath() {
     bool newBreath = hasNewBreath() || hasNewRandomBreath();
     
     if (newBreath) {
-        // Serial.print(" ---> New breath: ");
-        // Serial.println(b);
+        Serial.print(" ---> New breath: ");
+        Serial.println(b);
         breathStarts[b] = millis();
         breathPosition[b] = 0;
         breathWidth[b] = 1;
@@ -258,15 +261,15 @@ void addBreath() {
             // float progress = float(millis() - latestBreathStart) / float(BREATH_TRIP_MS);
             float progress = breathEase[latestBreathIndex].easeOut(float(millis() - latestBreathStart)) / float(ledsPerStrip);
         
-            breathWidth[latestBreathIndex] = ceil(progress * ledsPerStrip);
+            breathWidth[latestBreathIndex] = max(ceil(progress * ledsPerStrip), 1);
         
-            // Serial.print(" ---> Active breath #");
-            // Serial.print(latestBreathIndex);
-            // Serial.print(": ");
-            // Serial.print(breathWidth[latestBreathIndex]);
-            // Serial.print("(");
-            // Serial.print(breathCount);
-            // Serial.println(")");
+            Serial.print(" ---> Active breath #");
+            Serial.print(latestBreathIndex);
+            Serial.print(": ");
+            Serial.print(breathWidth[latestBreathIndex]);
+            Serial.print("(");
+            Serial.print(breathCount);
+            Serial.println(")");
         } else {
             // Not actively breathing
         }
@@ -461,6 +464,7 @@ void updatePIR(int p) {
 
     int value = digitalRead(p == 0 ? PIR1_PIN : PIR2_PIN);
     if (p == 0) value = !value; // Handle one active LOW and one active HIGH PIR sensor
+    value = true;
     // Serial.print("PIR #");
     // Serial.print(p);
     // Serial.print(": ");
@@ -599,7 +603,8 @@ void receiveSensor() {
     
     if (now - lastRemoteBreathRead > remoteBreathReadInteval) {
         int value = digitalRead(BREATH_REMOTE_PIN);
-        
+        Serial.print(" ---> Digital read breath remote pin: ");
+        Serial.println(value);
         if (value == HIGH) {
             if (!isBreath) {
                 Serial.println(" ---> New breath");
