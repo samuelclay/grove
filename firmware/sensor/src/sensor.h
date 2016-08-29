@@ -6,14 +6,17 @@
 #include <SI114.h>
 
 // #define USE_IR_PROX
+#define FAKE_PROX
 
 #define NEO_PIXEL_PIN 8
 #define ULTRASONIC_ANALOG_PIN 17
-#define RAW_VOLT_ANALOG_WING_SENSOR_PIN 1
+#define RAW_VOLT_ANALOG_WIND_SENSOR_PIN 1
 #define TEMPERATURE_ANALOG_WIND_SENSOR_PIN 2
 #define PIR_PIN 20
 #define SERVO_PIN 3
 #define SI114_PORT 0
+#define ULTRASONIC_2_TRIG_PIN 5
+#define ULTRASONIC_2_ECHO_PIN 4
 
 #define PIR_REMOTE_PIN 1
 #define BREATH_REMOTE_PIN 0
@@ -100,9 +103,6 @@ PirState pirState = PIR_OFF;
 
 // New Ultrasonic with two eyes
 
-#define ULTRASONIC_2_TRIG_PIN 5
-#define ULTRASONIC_2_ECHO_PIN 4
-
 Ultrasonic ultrasonic(ULTRASONIC_2_TRIG_PIN, ULTRASONIC_2_ECHO_PIN, 6000); // (Trig PIN, Echo PIN)
 
 // Ultrasonic
@@ -140,3 +140,5 @@ long openTimeoutLastEvent = 0;
 
 void closeFlower();
 void openFlower();
+void breathOff();
+void breathOn();

@@ -17,6 +17,10 @@ void setup() {
     servo.write(servoOpenPos); //open flower to start
     servo.detach();
 
+    for (int i = 0; i < WIND_HIST_LEN; i++) {
+        windHistory[i] = 0;
+    }
+
 #ifdef USE_IR_PROX
     if (!pulse.isPresent()) {
       Serial.print("No SI114x found on port ");
@@ -41,7 +45,7 @@ void setOnboardLEDs(uint8_t rValue, uint8_t gValue, uint8_t bValue) {
 }
 
 int getRawWind() {
-    return analogRead(RAW_VOLT_ANALOG_WING_SENSOR_PIN);
+    return analogRead(RAW_VOLT_ANALOG_WIND_SENSOR_PIN);
 }
 
 int getRawWindTemp() {
@@ -154,18 +158,18 @@ float getWind() {
     int TMP_Therm_ADunits;  //temp termistor value from wind sensor
     float RV_Wind_ADunits;    //RV output from wind sensor
     float RV_Wind_Volts;
-    int TempCtimes100;
+    // int TempCtimes100;
     float zeroWind_ADunits;
     float zeroWind_volts;
     float WindSpeed_MPH;
 
     TMP_Therm_ADunits = analogRead(TEMPERATURE_ANALOG_WIND_SENSOR_PIN);
-    RV_Wind_ADunits = analogRead(RAW_VOLT_ANALOG_WING_SENSOR_PIN);
+    RV_Wind_ADunits = analogRead(RAW_VOLT_ANALOG_WIND_SENSOR_PIN);
     RV_Wind_Volts = (RV_Wind_ADunits *  0.0048828125);
 
     // these are all derived from regressions from raw data as such they depend on a lot of experimental factors
     // such as accuracy of temp sensors, and voltage at the actual wind sensor, (wire losses) which were unaccouted for.
-    TempCtimes100 = (0.005 * ((float)TMP_Therm_ADunits * (float)TMP_Therm_ADunits)) - (16.862 * (float)TMP_Therm_ADunits) + 9075.4;
+    // TempCtimes100 = (0.005 * ((float)TMP_Therm_ADunits * (float)TMP_Therm_ADunits)) - (16.862 * (float)TMP_Therm_ADunits) + 9075.4;
 
     zeroWind_ADunits = -0.0006 * ((float)TMP_Therm_ADunits * (float)TMP_Therm_ADunits) + 1.0727 * (float)TMP_Therm_ADunits + 47.172; //  13.0C  553  482.39
 
@@ -196,8 +200,11 @@ void runWindAvgs() {
 
         lastBpassWind = bpassWind;
         bpassWind = (int)(highWindAvg-lowWindAvg);
-
         windHistory[windHistoryIndex] = bpassWind - lastBpassWind;
+        Serial.print(" ---> Wind history #");
+        Serial.print(windHistoryIndex);
+        Serial.print(": ");
+        Serial.println(windHistory[windHistoryIndex]);
         windHistoryIndex++;
 
         if (windHistoryIndex >= WIND_HIST_LEN) windHistoryIndex = 0;
@@ -219,18 +226,29 @@ void runBreathDetection() {
     for (int i = 0; i < WIND_HIST_LEN; i++) {
         diffSum += windHistory[i];
     }
-
+    Serial.print(" ---> runBreathDetection: ");
+    Serial.print(breathState);
+    Serial.print(" -> ");
+    Serial.println(diffSum);
     if (diffSum < -10 && breathState == REST) {
-        breathState = BREATH;
-        digitalWrite(BREATH_REMOTE_PIN, HIGH);
-        // HWSERIAL.print("B");
-        Serial.println("B");
+        breathOn();
     } else if (diffSum > -2 && breathState == BREATH) {
-        breathState = REST;
-        digitalWrite(BREATH_REMOTE_PIN, LOW);
-        // HWSERIAL.print("E");
-        Serial.println("E");
+        breathOff();
     }
+}
+
+void breathOn() {
+    breathState = BREATH;
+    digitalWrite(BREATH_REMOTE_PIN, HIGH);
+    // HWSERIAL.print("B");
+    Serial.println("B");
+}
+
+void breathOff() {
+    breathState = REST;
+    digitalWrite(BREATH_REMOTE_PIN, LOW);
+    // HWSERIAL.print("E");
+    Serial.println("E");
 }
 
 void updatePIR() {
@@ -285,7 +303,11 @@ void updateProx() {
 }
 
 bool isProx() {
+#ifdef FAKE_PROX
+    return true;
+#else
     return isProximate;
+#endif
 }
 
 void evaluateState() {
@@ -323,6 +345,7 @@ void evaluateState() {
                 closeFlower();
             } else if (!isProx()) {
                 overallState = STATE_OPEN;
+                breathOff();
                 // HWSERIAL.print("F");
                 // Serial.println("F");
             } else {
