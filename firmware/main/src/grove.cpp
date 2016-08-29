@@ -138,7 +138,7 @@ void addRandomDrip() {
             Serial.print(" ---> Not starting drip, last not done yet: ");
             Serial.print(distanceTraveled);
             Serial.print(" <= ");
-            Serial.println(previousLength/2+1);            
+            Serial.println(previousLength/2+1);
             return;
         } else if (newDripDelayEnd == 0) {
             newDripDelayEnd = millis() + random(REST_DRIP_DELAY_MIN, REST_DRIP_DELAY_MAX);
@@ -598,14 +598,20 @@ void receiveSensor() {
         int value = digitalRead(BREATH_REMOTE_PIN);
         
         if (value == HIGH) {
-            Serial.println(" ---> New breath");
-            detectedBreath = true;
-            addBreath();
+            if (!isBreath) {
+                Serial.println(" ---> New breath");
+                detectedBreath = true;
+                addBreath();
+                isBreath = true;
+            }
         } else {
-            // Breath ended
-            Serial.println(" ---> Breath ended <---");
-            detectedBreath = false;
-            activeBreath = -1;
+            if (isBreath) {
+                // Breath ended
+                Serial.println(" ---> Breath ended <---");
+                detectedBreath = false;
+                activeBreath = -1;
+                isBreath = false;
+            } 
         }
 
         lastRemoteBreathRead = now;

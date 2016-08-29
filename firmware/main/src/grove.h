@@ -5,7 +5,7 @@
 #include <SineEase.h>
 
 #define CAMPLIGHTS 0
-#define RANDOMBREATHS 1
+#define RANDOMBREATHS 0
 
 // ===================
 // = Pin Definitions =
@@ -22,6 +22,8 @@ const int slaveSelectPin = 10;
 
 long lastRemoteBreathRead = 0;
 const long remoteBreathReadInteval = 20;
+
+bool isBreath = false;
 
 // ===========
 // = Globals =
