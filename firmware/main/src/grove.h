@@ -13,9 +13,15 @@
 
 const uint8_t treeAPin = 14;
 const int slaveSelectPin = 10;
-#define HWSERIAL Serial1
+// #define HWSERIAL Serial1
 #define PIR1_PIN 9
 #define PIR2_PIN 12
+
+#define PIR_REMOTE_PIN 0
+#define BREATH_REMOTE_PIN 1
+
+long lastRemoteBreathRead = 0;
+const long remoteBreathReadInteval = 20;
 
 // ===========
 // = Globals =

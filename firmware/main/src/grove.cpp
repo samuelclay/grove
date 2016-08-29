@@ -11,10 +11,13 @@ void setup() {
     pinMode (slaveSelectPin, OUTPUT);
     pinMode(PIR1_PIN, INPUT_PULLUP);
 
+    pinMode(PIR_REMOTE_PIN, OUTPUT);
+    pinMode(BREATH_REMOTE_PIN, INPUT);
+
     SPI.begin(); 
 
     Serial.begin(9600); // USB is always 12 Mbit/sec
-    HWSERIAL.begin(9600);
+    // HWSERIAL.begin(9600);
     
     clearDispatcher();
 
@@ -568,16 +571,18 @@ void transmitSensor() {
         case STATE_NEUTRAL: {
             if (pir1State == PIR_ON || pir2State == PIR_ON) {
                 overallState = STATE_OPEN;
-                HWSERIAL.print("X");
-                Serial.println(" ---> PIR active");
+                digitalWrite(PIR_REMOTE_PIN, HIGH);
+                // HWSERIAL.print("X");
+                // Serial.println(" ---> PIR active");
             }
             break;
         }
         case STATE_OPEN: {
             long now = millis();
             if (now - openTimeoutLastEvent > openTimeout) {
-                HWSERIAL.print("Z");
-                Serial.println(" ---> PIR inactive");
+                digitalWrite(PIR_REMOTE_PIN, LOW);
+                // HWSERIAL.print("Z");
+                // Serial.println(" ---> PIR inactive");
                 overallState = STATE_NEUTRAL;
             }
             break;
@@ -586,40 +591,60 @@ void transmitSensor() {
 }
 
 void receiveSensor() {
-    if (HWSERIAL.available() > 0) {
-        uint8_t incomingByte;
-        incomingByte = HWSERIAL.read();
-        // Serial.println(incomingByte, HEX);
+    long now = millis();
+
+    
+    if (now - lastRemoteBreathRead > remoteBreathReadInteval) {
+        int value = digitalRead(BREATH_REMOTE_PIN);
         
-        if (incomingByte == 'B') {
-            // Breath started
+        if (value == HIGH) {
             Serial.println(" ---> New breath");
             detectedBreath = true;
             addBreath();
-            proximityState = STATE_BREATHING_ACTIVE;
-        } else if (incomingByte == 'E') {
+        } else {
             // Breath ended
             Serial.println(" ---> Breath ended <---");
             detectedBreath = false;
             activeBreath = -1;
-        } else if (incomingByte == 'O') {
-            // PIR active
-            pirStart = millis();
-            if (proximityState == STATE_PIR_INACTIVE) {
-                proximityState = STATE_PIR_ACTIVE;
-            }
-        } else if (incomingByte == 'C') {
-            // PIR inactive
-            pirEnd = millis();
-            proximityState = STATE_PIR_INACTIVE;
-        } else if (incomingByte == 'P') {
-            // Proximity near
-            proximityState = STATE_PROX_NEAR;
-        } else if (incomingByte == 'F') {
-            // Proximity far
-            proximityState = STATE_PIR_ACTIVE;
         }
+
+        lastRemoteBreathRead = now;
     }
+
+    // if (HWSERIAL.available() > 0) {
+    //     uint8_t incomingByte;
+    //     incomingByte = HWSERIAL.read();
+    //     // Serial.println(incomingByte, HEX);
+        
+    //     if (incomingByte == 'B') {
+    //         // Breath started
+    //         Serial.println(" ---> New breath");
+    //         detectedBreath = true;
+    //         addBreath();
+    //         proximityState = STATE_BREATHING_ACTIVE;
+    //     } else if (incomingByte == 'E') {
+    //         // Breath ended
+    //         Serial.println(" ---> Breath ended <---");
+    //         detectedBreath = false;
+    //         activeBreath = -1;
+    //     } else if (incomingByte == 'O') {
+    //         // PIR active
+    //         pirStart = millis();
+    //         if (proximityState == STATE_PIR_INACTIVE) {
+    //             proximityState = STATE_PIR_ACTIVE;
+    //         }
+    //     } else if (incomingByte == 'C') {
+    //         // PIR inactive
+    //         pirEnd = millis();
+    //         proximityState = STATE_PIR_INACTIVE;
+    //     } else if (incomingByte == 'P') {
+    //         // Proximity near
+    //         proximityState = STATE_PROX_NEAR;
+    //     } else if (incomingByte == 'F') {
+    //         // Proximity far
+    //         proximityState = STATE_PIR_ACTIVE;
+    //     }
+    // }
 }
 
 void runBase() {

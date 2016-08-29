@@ -345,6 +345,8 @@ void readRemoteState() {
         } else {
             remoteState = STATE_NEUTRAL;
         }
+
+        lastRemotePIRRead = now;
     }
 
     // if (HWSERIAL.available() > 0) {
