@@ -68,7 +68,7 @@ void loop() {
     receiveSensor();
     
 #if RANDOMBREATHS
-    if (millis() % 60000 < 15000) {
+    if (millis() % (60 * 1000) < 5000) {
         addBreath();
     }
 #else
@@ -118,7 +118,7 @@ uint8_t flipByte(uint8_t val) {
 
 void addRandomDrip() {
     // Wait until drip is far enough away from beginning
-    float progress = 0;
+    float distanceTraveled = 0;
     int previousLength = 0;
     int d = dripCount % DRIP_LIMIT;
     
@@ -126,25 +126,32 @@ void addRandomDrip() {
         int latestDripIndex = d - 1;
         if (latestDripIndex < 0) latestDripIndex = DRIP_LIMIT - 1; // wrap around
         int latestDripStart = dripStarts[latestDripIndex];
-        // progress = (millis() - latestDripStart) / float(REST_DRIP_TRIP_MS);
-        progress = dripEase[latestDripIndex].easeIn(float(millis() - latestDripStart));
+        // distanceTraveled = (millis() - latestDripStart) / float(REST_DRIP_TRIP_MS);
+        distanceTraveled = dripEase[latestDripIndex].easeIn(float(millis() - latestDripStart));
         previousLength = dripWidth[latestDripIndex];
         
         // Don't start a new drip if the latest drip isn't done coming out
-        if (progress <= previousLength/2+1) {
-            // Serial.println(" ---> Not starting drip, last not done yet.");
+        if (distanceTraveled <= previousLength/2+1) {
+            Serial.print(" ---> Not starting drip, last not done yet: ");
+            Serial.print(distanceTraveled);
+            Serial.print(" <= ");
+            Serial.println(previousLength/2+1);            
             return;
         } else if (newDripDelayEnd == 0) {
             newDripDelayEnd = millis() + random(REST_DRIP_DELAY_MIN, REST_DRIP_DELAY_MAX);
         }
     }
 
-    // Serial.print(" ---> Drip progress: ");
-    // Serial.print(progress);
-    // Serial.print(" -- ");
-    // Serial.print(ceil(progress * ledsPerStrip));
-    // Serial.print(" < ");
-    // Serial.println(furthestBreathPosition);
+    Serial.print(" ---> New Drip? (#");
+    Serial.print(dripCount);
+    Serial.print("): ");
+    Serial.print(distanceTraveled);
+    Serial.print(" -- ");
+    Serial.print(furthestBreathPosition);
+    Serial.print(" millis:");
+    Serial.print(millis());
+    Serial.print(" > ");
+    Serial.println(newDripDelayEnd);
     
     if (!dripCount || millis() > newDripDelayEnd) {
         newDripDelayEnd = 0;
@@ -166,10 +173,27 @@ bool hasNewRandomBreath() {
     if (activeBreath != -1) return false;
     
     if (millis() > lastNewBreathMs) {
+        Serial.print(" ---> millis() > lastNewBreathMs: ");
+        // Serial.print(millis());
+        // Serial.print(" > ");
+        // Serial.print(lastNewBreathMs);
+        // Serial.print(" - ");
+        // Serial.println(endActiveBreathMs);
         endActiveBreathMs = millis() + random(500, 1000);
         lastNewBreathMs = endActiveBreathMs + random(800, 1550);
+        // Serial.print(" -> (Now) ");
+        // Serial.print(lastNewBreathMs);
+        // Serial.print(" - ");
+        // Serial.println(endActiveBreathMs);
         return true;
     }
+    
+    // Serial.print(" ---> hasNewBreath is not stale nor running: ");
+    // Serial.print(millis());
+    // Serial.print(" < ");
+    // Serial.print(lastNewBreathMs);
+    // Serial.print(" - ");
+    // Serial.println(endActiveBreathMs);
     
     return false;
 }
@@ -182,6 +206,8 @@ bool hasNewBreath() {
         return true;
     }
     
+    Serial.println(" ---> No detected breath and no inactive breath");
+    
     return false;
 }
 
@@ -192,6 +218,8 @@ bool hasActiveRandomBreath() {
         return true;
     }
     
+    activeBreath = -1;
+    
     return false;
 }
 
@@ -200,6 +228,11 @@ bool hasActiveBreath() {
 }
 
 void addBreath() {
+    // Serial.print(" -> (Now) ");
+    // Serial.print(lastNewBreathMs);
+    // Serial.print(" - ");
+    // Serial.println(endActiveBreathMs);
+    
     int b = breathCount % BREATH_LIMIT;
     bool newBreath = hasNewBreath() || hasNewRandomBreath();
     
@@ -228,7 +261,9 @@ void addBreath() {
             Serial.print(latestBreathIndex);
             Serial.print(": ");
             Serial.print(breathWidth[latestBreathIndex]);
-            Serial.print(": ");
+            Serial.print("(");
+            Serial.print(breathCount);
+            Serial.println(")");
         } else {
             // Not actively breathing
         }
@@ -385,16 +420,16 @@ void drawBreath(int b, int breathStart) {
         }
     }
 
-    // Serial.print(" ---> Breath #");
-    // Serial.print(b);
-    // Serial.print(": ");
-    // Serial.print(progress);
-    // Serial.print(" = ");
-    // Serial.print(currentLed);
-    // Serial.print(" - ");
-    // Serial.print(tail);
-    // Serial.print(" >? ");
-    // Serial.println(furthestBreathPosition);
+    Serial.print(" ---> Breath #");
+    Serial.print(b);
+    Serial.print(": ");
+    Serial.print(progress);
+    Serial.print(" = ");
+    Serial.print(currentLed);
+    Serial.print(" - ");
+    Serial.print(tail);
+    Serial.print(" >? ");
+    Serial.println(furthestBreathPosition);
     
     int baseColor = ROYALBLUE;
     int color;
@@ -533,16 +568,16 @@ void transmitSensor() {
         case STATE_NEUTRAL: {
             if (pir1State == PIR_ON || pir2State == PIR_ON) {
                 overallState = STATE_OPEN;
-                HWSERIAL.print("O");
-                Serial.println("O");
+                HWSERIAL.print("X");
+                Serial.println(" ---> PIR active");
             }
             break;
         }
         case STATE_OPEN: {
             long now = millis();
             if (now - openTimeoutLastEvent > openTimeout) {
-                HWSERIAL.print("C");
-                Serial.println("C");
+                HWSERIAL.print("Z");
+                Serial.println(" ---> PIR inactive");
                 overallState = STATE_NEUTRAL;
             }
             break;

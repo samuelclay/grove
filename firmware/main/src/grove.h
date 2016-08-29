@@ -5,7 +5,7 @@
 #include <SineEase.h>
 
 #define CAMPLIGHTS 0
-#define RANDOMBREATHS 0
+#define RANDOMBREATHS 1
 
 // ===================
 // = Pin Definitions =
@@ -22,16 +22,16 @@ const int slaveSelectPin = 10;
 // ===========
 
 #if CAMPLIGHTS
-const int32_t REST_DRIP_WIDTH_MIN = 30;
-const int32_t REST_DRIP_WIDTH_MAX = 2000;
+const int32_t REST_DRIP_WIDTH_MIN = 10000;
+const int32_t REST_DRIP_WIDTH_MAX = 100000;
 const int ledsPerStrip = 720;
 #else
 const int32_t REST_DRIP_WIDTH_MIN = 4;
-const int32_t REST_DRIP_WIDTH_MAX = 40;
+const int32_t REST_DRIP_WIDTH_MAX = 80;
 const int ledsPerStrip = 720;
 #endif
-const int32_t REST_DRIP_DELAY_MIN = 100;
-const int32_t REST_DRIP_DELAY_MAX = 200;
+const int32_t REST_DRIP_DELAY_MIN = 10;
+const int32_t REST_DRIP_DELAY_MAX = 50;
 
 const int32_t BASE_PIR_FADE_IN = 2000;
 const int32_t BASE_PIR_FADE_OUT = 5000;
@@ -50,9 +50,13 @@ const double REST_DRIP_DECAY = 0.64;
 const double BREATH_DECAY = 0.95;
 
 // Time taken for drip to traverse LEDs
+#if CAMPLIGHTS
 const unsigned long REST_DRIP_TRIP_MS = 20000;
+#else
+const unsigned long REST_DRIP_TRIP_MS = 60000;
+#endif
 const unsigned long BREATH_TRIP_MS = 20000;
-const unsigned long BREATH_RISE_MS = 1750;
+const unsigned long BREATH_RISE_MS = 5750;
 
 uint32_t dripCount = 0;
 uint32_t breathCount = 0;
@@ -63,18 +67,18 @@ unsigned long dripStarts[DRIP_LIMIT];
 unsigned int dripColors[DRIP_LIMIT];
 unsigned int dripWidth[DRIP_LIMIT];
 bool dripEaten[DRIP_LIMIT];
-unsigned int newDripDelayEnd = 0;
+unsigned long newDripDelayEnd = 0;
 
 const int BREATH_LIMIT = 20;
 unsigned long breathStarts[BREATH_LIMIT];
 unsigned int breathWidth[BREATH_LIMIT];
 unsigned int breathPosition[BREATH_LIMIT];
 int activeBreath = -1;
-unsigned int lastNewBreathMs = 0;
-unsigned int endActiveBreathMs = 0;
+unsigned long lastNewBreathMs = 0;
+unsigned long endActiveBreathMs = 0;
 int furthestBreathPosition = 0;
-unsigned int breathBoostStart = 0;
-unsigned int breathFallingStart = 0;
+unsigned long breathBoostStart = 0;
+unsigned long breathFallingStart = 0;
 bool detectedBreath = false;
 
 QuadraticEase dripEase[DRIP_LIMIT];
