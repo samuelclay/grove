@@ -273,8 +273,6 @@ void updateProx() {
 
         lastUltraSampleTime = now;
 
-        // Serial.println(ultraVal);
-
         isProximate = false;
         for (int i = 0; i < ULTRA_HIST_LEN; i++) {
             if (ultraHistory[i] < ultraThres) {
@@ -282,6 +280,7 @@ void updateProx() {
                 break;
             }
         }
+
     }
 }
 
@@ -372,7 +371,7 @@ void loop() {
     updateProx();
 
     evaluateState();
-    runBreathDetection();
+    // runBreathDetection();
 
     // if (millis() % 2000 < 1000) {
     //     runBreathDetection();

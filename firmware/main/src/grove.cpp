@@ -487,9 +487,6 @@ void updatePIR(int p) {
 
     if (pir1State == PIR_ON || pir2State == PIR_ON) {
         openTimeoutLastEvent = now;
-        proximityState = STATE_PIR_ACTIVE;
-    } else {
-        proximityState = STATE_PIR_INACTIVE;
     }
 
     lastPIRSampleTime[p] = now;
@@ -575,6 +572,7 @@ void transmitSensor() {
             if (pir1State == PIR_ON || pir2State == PIR_ON) {
                 overallState = STATE_OPEN;
                 digitalWrite(PIR_REMOTE_PIN, HIGH);
+                proximityState = STATE_PIR_ACTIVE;
                 // HWSERIAL.print("X");
                 // Serial.println(" ---> PIR active");
             }
@@ -584,6 +582,8 @@ void transmitSensor() {
             long now = millis();
             if (now - openTimeoutLastEvent > openTimeout) {
                 digitalWrite(PIR_REMOTE_PIN, LOW);
+                proximityState = STATE_PIR_INACTIVE;
+
                 // HWSERIAL.print("Z");
                 // Serial.println(" ---> PIR inactive");
                 overallState = STATE_NEUTRAL;

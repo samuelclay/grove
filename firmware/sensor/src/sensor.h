@@ -112,7 +112,7 @@ const long ultraSampleInterval = 100;
 long lastUltraSampleTime = 0;
 bool isProximate = false;
 
-#define ULTRA_HIST_LEN 200
+#define ULTRA_HIST_LEN 10
 int ultraHistoryIndex = 0;
 int ultraHistory[ULTRA_HIST_LEN];
 
