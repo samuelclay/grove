@@ -15,7 +15,15 @@
 #define SERVO_PIN 3
 #define SI114_PORT 0
 
+#define PIR_REMOTE_PIN 0
+#define BREATH_REMOTE_PIN 1
+
 Adafruit_NeoPixel leds = Adafruit_NeoPixel(2, NEO_PIXEL_PIN, NEO_GRB + NEO_KHZ800);
+
+// Remote
+
+long lastRemotePIRRead = 0;
+const long remotePIRReadInteval = 100;
 
 // LEDs
 

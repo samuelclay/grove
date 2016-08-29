@@ -10,6 +10,9 @@ void setup() {
     pinMode(PIR_PIN, INPUT_PULLUP);
     pinMode(SERVO_PIN, OUTPUT);
 
+    pinMode(PIR_REMOTE_PIN, INPUT);
+    pinMode(BREATH_REMOTE_PIN, OUTPUT);
+
     servo.attach(SERVO_PIN); //set up the servo on pin 3
     servo.write(servoOpenPos); //open flower to start
     servo.detach();
@@ -218,13 +221,15 @@ void runBreathDetection() {
     }
 
     if (diffSum < -10 && breathState == REST) {
-        HWSERIAL.print("B");
-        // Serial.println("B");
         breathState = BREATH;
+        digitalWrite(BREATH_REMOTE_PIN, HIGH);
+        // HWSERIAL.print("B");
+        // Serial.println("B");
     } else if (diffSum > -2 && breathState == BREATH) {
-        HWSERIAL.print("E");
-        // Serial.printintln("E");
         breathState = REST;
+        digitalWrite(BREATH_REMOTE_PIN, LOW);
+        // HWSERIAL.print("E");
+        // Serial.printintln("E");
     }
 }
 
@@ -306,7 +311,7 @@ void evaluateState() {
                 closeFlower();
             } else if (isProx()) {
                 overallState = STATE_PROX;
-                HWSERIAL.print("P");
+                // HWSERIAL.print("P");
                 // Serial.println("P");
             }
             break;
@@ -319,7 +324,7 @@ void evaluateState() {
                 closeFlower();
             } else if (!isProx()) {
                 overallState = STATE_OPEN;
-                HWSERIAL.print("F");
+                // HWSERIAL.print("F");
                 // Serial.println("F");
             } else {
                 runBreathDetection();
@@ -331,17 +336,28 @@ void evaluateState() {
 }
 
 void readRemoteState() {
-    if (HWSERIAL.available() > 0) {
-        uint8_t incomingByte;
-        incomingByte = HWSERIAL.read();
-        // Serial.println(incomingByte, HEX);
+    long now = millis();
+    if (now - lastRemotePIRRead > remotePIRReadInteval) {
+        int value = digitalRead(PIR_REMOTE_PIN);
         
-        if (incomingByte == 'O') {
+        if (value == HIGH) {
             remoteState = STATE_OPEN;
-        } else if (incomingByte == 'C') {
+        } else {
             remoteState = STATE_NEUTRAL;
         }
     }
+
+    // if (HWSERIAL.available() > 0) {
+    //     uint8_t incomingByte;
+    //     incomingByte = HWSERIAL.read();
+    //     // Serial.println(incomingByte, HEX);
+        
+    //     if (incomingByte == 'O') {
+    //         remoteState = STATE_OPEN;
+    //     } else if (incomingByte == 'C') {
+    //         remoteState = STATE_NEUTRAL;
+    //     }
+    // }
 }
 
 void loop() {
