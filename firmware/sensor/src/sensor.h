@@ -80,7 +80,7 @@ int windState = 0;
 
 // UART to mainboard
 
-#define HWSERIAL Serial1
+// #define HWSERIAL Serial1
 
 // PIR
 

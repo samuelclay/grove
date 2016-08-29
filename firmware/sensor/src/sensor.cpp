@@ -2,7 +2,7 @@
 
 void setup() { 
     Serial.begin(9600);
-    HWSERIAL.begin(9600);
+    // HWSERIAL.begin(9600);
 
     leds.begin();
     leds.show();
