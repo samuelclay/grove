@@ -70,7 +70,7 @@ void loop() {
     transmitSensor();
     receiveSensor();
     
-#if RANDOMBREATHS
+#ifdef RANDOMBREATHS
     if (millis() % (60 * 1000) < 5000) {
         addBreath();
     }
@@ -169,7 +169,7 @@ void addRandomDrip() {
 }
 
 bool hasNewRandomBreath() {
-#if !RANDOMBREATHS
+#ifndef RANDOMBREATHS
     return false;
 #endif
     
@@ -215,7 +215,7 @@ bool hasNewBreath() {
 }
 
 bool hasActiveRandomBreath() {
-#if !RANDOMBREATHS
+#ifndef RANDOMBREATHS
     return false;
 #endif
     if (activeBreath == -1) return false;
@@ -464,7 +464,9 @@ void updatePIR(int p) {
 
     int value = digitalRead(p == 0 ? PIR1_PIN : PIR2_PIN);
     if (p == 0) value = !value; // Handle one active LOW and one active HIGH PIR sensor
+#ifdef FAKE_PIR
     value = true;
+#endif
     // Serial.print("PIR #");
     // Serial.print(p);
     // Serial.print(": ");
@@ -693,7 +695,7 @@ void runBase() {
 
 unsigned long randomGreen() {
     unsigned long greens[] = {
-#if CAMPLIGHTS
+#ifdef CAMPLIGHTS
         NAVY, DARKBLUE, MEDIUMBLUE, BLUE, DARKGREEN, GREEN, TEAL, DARKCYAN,
         DEEPSKYBLUE, DARKTURQUOISE, MEDIUMSPRINGGREEN, LIME, SPRINGGREEN,
         AQUA, CYAN, MIDNIGHTBLUE, DODGERBLUE, LIGHTSEAGREEN, FORESTGREEN,

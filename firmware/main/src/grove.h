@@ -4,8 +4,9 @@
 #include <QuadraticEase.h>
 #include <SineEase.h>
 
-#define CAMPLIGHTS 0
-#define RANDOMBREATHS 0
+// #define CAMPLIGHTS
+// #define RANDOMBREATHS
+// #define FAKE_PIR
 
 // ===================
 // = Pin Definitions =
@@ -29,7 +30,7 @@ bool isBreath = false;
 // = Globals =
 // ===========
 
-#if CAMPLIGHTS
+#ifdef CAMPLIGHTS
 const int32_t REST_DRIP_WIDTH_MIN = 10000;
 const int32_t REST_DRIP_WIDTH_MAX = 100000;
 const int ledsPerStrip = 720;
@@ -58,7 +59,7 @@ const double REST_DRIP_DECAY = 0.64;
 const double BREATH_DECAY = 0.95;
 
 // Time taken for drip to traverse LEDs
-#if CAMPLIGHTS
+#ifdef CAMPLIGHTS
 const unsigned long REST_DRIP_TRIP_MS = 20000;
 #else
 const unsigned long REST_DRIP_TRIP_MS = 60000;
