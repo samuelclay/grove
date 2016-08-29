@@ -135,26 +135,26 @@ void addRandomDrip() {
         
         // Don't start a new drip if the latest drip isn't done coming out
         if (distanceTraveled <= previousLength/2+1) {
-            Serial.print(" ---> Not starting drip, last not done yet: ");
-            Serial.print(distanceTraveled);
-            Serial.print(" <= ");
-            Serial.println(previousLength/2+1);
+            // Serial.print(" ---> Not starting drip, last not done yet: ");
+            // Serial.print(distanceTraveled);
+            // Serial.print(" <= ");
+            // Serial.println(previousLength/2+1);
             return;
         } else if (newDripDelayEnd == 0) {
             newDripDelayEnd = millis() + random(REST_DRIP_DELAY_MIN, REST_DRIP_DELAY_MAX);
         }
     }
 
-    Serial.print(" ---> New Drip? (#");
-    Serial.print(dripCount);
-    Serial.print("): ");
-    Serial.print(distanceTraveled);
-    Serial.print(" -- ");
-    Serial.print(furthestBreathPosition);
-    Serial.print(" millis:");
-    Serial.print(millis());
-    Serial.print(" > ");
-    Serial.println(newDripDelayEnd);
+    // Serial.print(" ---> New Drip? (#");
+    // Serial.print(dripCount);
+    // Serial.print("): ");
+    // Serial.print(distanceTraveled);
+    // Serial.print(" -- ");
+    // Serial.print(furthestBreathPosition);
+    // Serial.print(" millis:");
+    // Serial.print(millis());
+    // Serial.print(" > ");
+    // Serial.println(newDripDelayEnd);
     
     if (!dripCount || millis() > newDripDelayEnd) {
         newDripDelayEnd = 0;
@@ -176,7 +176,7 @@ bool hasNewRandomBreath() {
     if (activeBreath != -1) return false;
     
     if (millis() > lastNewBreathMs) {
-        Serial.print(" ---> millis() > lastNewBreathMs: ");
+        // Serial.print(" ---> millis() > lastNewBreathMs: ");
         // Serial.print(millis());
         // Serial.print(" > ");
         // Serial.print(lastNewBreathMs);
@@ -205,11 +205,11 @@ bool hasNewBreath() {
     if (activeBreath != -1) return false;
     
     if (detectedBreath) {
-        Serial.println(" ---> hasNewBreath has detected a breath");
+        // Serial.println(" ---> hasNewBreath has detected a breath");
         return true;
     }
     
-    Serial.println(" ---> No detected breath and no inactive breath");
+    // Serial.println(" ---> No detected breath and no inactive breath");
     
     return false;
 }
@@ -240,8 +240,8 @@ void addBreath() {
     bool newBreath = hasNewBreath() || hasNewRandomBreath();
     
     if (newBreath) {
-        Serial.print(" ---> New breath: ");
-        Serial.println(b);
+        // Serial.print(" ---> New breath: ");
+        // Serial.println(b);
         breathStarts[b] = millis();
         breathPosition[b] = 0;
         breathWidth[b] = 1;
@@ -260,13 +260,13 @@ void addBreath() {
         
             breathWidth[latestBreathIndex] = ceil(progress * ledsPerStrip);
         
-            Serial.print(" ---> Active breath #");
-            Serial.print(latestBreathIndex);
-            Serial.print(": ");
-            Serial.print(breathWidth[latestBreathIndex]);
-            Serial.print("(");
-            Serial.print(breathCount);
-            Serial.println(")");
+            // Serial.print(" ---> Active breath #");
+            // Serial.print(latestBreathIndex);
+            // Serial.print(": ");
+            // Serial.print(breathWidth[latestBreathIndex]);
+            // Serial.print("(");
+            // Serial.print(breathCount);
+            // Serial.println(")");
         } else {
             // Not actively breathing
         }
@@ -423,16 +423,16 @@ void drawBreath(int b, int breathStart) {
         }
     }
 
-    Serial.print(" ---> Breath #");
-    Serial.print(b);
-    Serial.print(": ");
-    Serial.print(progress);
-    Serial.print(" = ");
-    Serial.print(currentLed);
-    Serial.print(" - ");
-    Serial.print(tail);
-    Serial.print(" >? ");
-    Serial.println(furthestBreathPosition);
+    // Serial.print(" ---> Breath #");
+    // Serial.print(b);
+    // Serial.print(": ");
+    // Serial.print(progress);
+    // Serial.print(" = ");
+    // Serial.print(currentLed);
+    // Serial.print(" - ");
+    // Serial.print(tail);
+    // Serial.print(" >? ");
+    // Serial.println(furthestBreathPosition);
     
     int baseColor = ROYALBLUE;
     int color;

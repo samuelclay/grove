@@ -224,12 +224,12 @@ void runBreathDetection() {
         breathState = BREATH;
         digitalWrite(BREATH_REMOTE_PIN, HIGH);
         // HWSERIAL.print("B");
-        // Serial.println("B");
+        Serial.println("B");
     } else if (diffSum > -2 && breathState == BREATH) {
         breathState = REST;
         digitalWrite(BREATH_REMOTE_PIN, LOW);
         // HWSERIAL.print("E");
-        // Serial.printintln("E");
+        Serial.println("E");
     }
 }
 
@@ -372,6 +372,7 @@ void loop() {
     updateProx();
 
     evaluateState();
+    runBreathDetection();
 
     // if (millis() % 2000 < 1000) {
     //     runBreathDetection();
