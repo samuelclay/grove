@@ -284,7 +284,9 @@ void updateProx() {
     long now = millis();
     if (now - lastUltraSampleTime > ultraSampleInterval) {
         int ultraVal = (int)ultrasonic.Ranging(CM);
-
+        
+        Serial.print(" ---> Ultrasonic: ");
+        Serial.println(ultraVal);
         ultraHistory[ultraHistoryIndex] = ultraVal;
         ultraHistoryIndex++;
         if (ultraHistoryIndex >= ULTRA_HIST_LEN) ultraHistoryIndex = 0;
