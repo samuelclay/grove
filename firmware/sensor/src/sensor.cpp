@@ -207,10 +207,10 @@ void runWindAvgs() {
         lastBpassWind = bpassWind;
         bpassWind = (int)(highWindAvg-lowWindAvg);
         windHistory[windHistoryIndex] = bpassWind - lastBpassWind;
-        Serial.print(" ---> Wind history #");
-        Serial.print(windHistoryIndex);
-        Serial.print(": ");
-        Serial.println(windHistory[windHistoryIndex]);
+        // Serial.print(" ---> Wind history #");
+        // Serial.print(windHistoryIndex);
+        // Serial.print(": ");
+        // Serial.println(windHistory[windHistoryIndex]);
         windHistoryIndex++;
 
         if (windHistoryIndex >= WIND_HIST_LEN) windHistoryIndex = 0;
@@ -232,10 +232,10 @@ void runBreathDetection() {
     for (int i = 0; i < WIND_HIST_LEN; i++) {
         diffSum += windHistory[i];
     }
-    Serial.print(" ---> runBreathDetection: ");
-    Serial.print(breathState);
-    Serial.print(" -> ");
-    Serial.println(diffSum);
+    // Serial.print(" ---> runBreathDetection: ");
+    // Serial.print(breathState);
+    // Serial.print(" -> ");
+    // Serial.println(diffSum);
     if (diffSum < -10 && breathState == REST) {
         breathOn();
     } else if (diffSum > -2 && breathState == BREATH) {
@@ -247,14 +247,14 @@ void breathOn() {
     breathState = BREATH;
     digitalWrite(BREATH_REMOTE_PIN, HIGH);
     // HWSERIAL.print("B");
-    Serial.println("B");
+    // Serial.println("B");
 }
 
 void breathOff() {
     breathState = REST;
     digitalWrite(BREATH_REMOTE_PIN, LOW);
     // HWSERIAL.print("E");
-    Serial.println("E");
+    // Serial.println("E");
 }
 
 void updatePIR() {

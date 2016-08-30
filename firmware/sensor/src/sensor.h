@@ -6,7 +6,7 @@
 #include <SI114.h>
 
 // #define USE_IR_PROX
-// #define FAKE_PROX
+#define FAKE_PROX
 
 #define NEO_PIXEL_PIN 8
 #define ULTRASONIC_ANALOG_PIN 17

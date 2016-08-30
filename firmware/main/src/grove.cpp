@@ -263,13 +263,13 @@ void addBreath() {
         
             breathWidth[latestBreathIndex] = max(ceil(progress * ledsPerStrip), 1);
         
-            Serial.print(" ---> Active breath #");
-            Serial.print(latestBreathIndex);
-            Serial.print(": ");
-            Serial.print(breathWidth[latestBreathIndex]);
-            Serial.print("(");
-            Serial.print(breathCount);
-            Serial.println(")");
+            // Serial.print(" ---> Active breath #");
+            // Serial.print(latestBreathIndex);
+            // Serial.print(": ");
+            // Serial.print(breathWidth[latestBreathIndex]);
+            // Serial.print("(");
+            // Serial.print(breathCount);
+            // Serial.println(")");
         } else {
             // Not actively breathing
         }
@@ -471,7 +471,7 @@ void updatePIR(int p) {
     // Serial.print(p);
     // Serial.print(": ");
     // Serial.println(value);
-    
+
     pirHistory[p][pirHistoryIndex[p]] = value;
     pirHistoryIndex[p]++;
     if (pirHistoryIndex[p] >= PIR_HIST_LEN) pirHistoryIndex[p] = 0;
@@ -580,7 +580,7 @@ void transmitSensor() {
                 digitalWrite(PIR_REMOTE_PIN, HIGH);
                 proximityState = STATE_PIR_ACTIVE;
                 // HWSERIAL.print("X");
-                // Serial.println(" ---> PIR active");
+                Serial.println(" ---> PIR active");
             }
             break;
         }
@@ -591,7 +591,7 @@ void transmitSensor() {
                 proximityState = STATE_PIR_INACTIVE;
 
                 // HWSERIAL.print("Z");
-                // Serial.println(" ---> PIR inactive");
+                Serial.println(" ---> PIR inactive");
                 overallState = STATE_NEUTRAL;
             }
             break;
