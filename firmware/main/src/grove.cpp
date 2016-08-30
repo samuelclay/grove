@@ -467,10 +467,10 @@ void updatePIR(int p) {
 #ifdef FAKE_PIR
     value = true;
 #endif
-    Serial.print("PIR #");
-    Serial.print(p);
-    Serial.print(": ");
-    Serial.println(value);
+    // Serial.print("PIR #");
+    // Serial.print(p);
+    // Serial.print(": ");
+    // Serial.println(value);
     
     pirHistory[p][pirHistoryIndex[p]] = value;
     pirHistoryIndex[p]++;
