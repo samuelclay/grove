@@ -31,7 +31,8 @@ const long remotePIRReadInteval = 100;
 // LEDs
 
 int ledCloseColorR = 0, ledCloseColorG = 0, ledCloseColorB = 0;
-int ledOpenColorR = 255, ledOpenColorG = 255, ledOpenColorB = 0;
+int ledOpenColorR = 255, ledOpenColorG = 85, ledOpenColorB = 0;
+int ledProxColorR = 255, ledProxColorG = 85, ledProxColorB = 85;
 
 int ledStartColorR = 0, ledStartColorG = 0, ledStartColorB = 0;
 int ledEndColorR = 255, ledEndColorG = 255, ledEndColorB = 0;

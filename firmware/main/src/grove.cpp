@@ -459,7 +459,7 @@ void drawBreath(int b, int breathStart) {
 
 void updatePIR(int p) {
     long now = millis();
-    if (now < 5000) return; // Let the PIR setup
+    if (now < 1000) return; // Let the PIR setup
     if (now - lastPIRSampleTime[p] < pirSampleInterval) return;
 
     int value = digitalRead(p == 0 ? PIR1_PIN : PIR2_PIN);
@@ -467,10 +467,10 @@ void updatePIR(int p) {
 #ifdef FAKE_PIR
     value = true;
 #endif
-    // Serial.print("PIR #");
-    // Serial.print(p);
-    // Serial.print(": ");
-    // Serial.println(value);
+    Serial.print("PIR #");
+    Serial.print(p);
+    Serial.print(": ");
+    Serial.println(value);
     
     pirHistory[p][pirHistoryIndex[p]] = value;
     pirHistoryIndex[p]++;
@@ -485,9 +485,9 @@ void updatePIR(int p) {
         }
     }
     
-    if (p == 1) {
+    if (p == 0) {
         pir1State = newState;
-    } else if (p == 2) {
+    } else if (p == 1) {
         pir2State = newState;
     }
 
@@ -605,8 +605,8 @@ void receiveSensor() {
     
     if (now - lastRemoteBreathRead > remoteBreathReadInteval) {
         int value = digitalRead(BREATH_REMOTE_PIN);
-        Serial.print(" ---> Digital read breath remote pin: ");
-        Serial.println(value);
+        // Serial.print(" ---> Digital read breath remote pin: ");
+        // Serial.println(value);
         if (value == HIGH) {
             if (!isBreath) {
                 Serial.println(" ---> New breath");
@@ -666,10 +666,10 @@ void receiveSensor() {
 void runBase() {
     if (proximityState == STATE_PIR_INACTIVE && millis() - BASE_PIR_FADE_OUT > pirEnd) return;
     
-    int color = ROYALBLUE;
-    int period = 2; // seconds
-    float brightnessMax = 0.5f;
-    float brightnessMin = 0.25f;
+    unsigned long color = 0x75DB46;
+    int period = 5; // seconds
+    float brightnessMax = 1.f;
+    float brightnessMin = 0.05f;
     double progress = (millis() % (period * 1000)) / (period * 1000.f);
     double multiplier = (sinTable[(int)ceil(progress * 360.f)] + 1)/2.f;
     double brightness = multiplier * (brightnessMax - brightnessMin) + brightnessMin;
@@ -710,13 +710,13 @@ unsigned long randomGreen() {
         RED, FUCHSIA, MAGENTA, DEEPPINK, ORANGERED, TOMATO, DARKORANGE,
         ORANGE, GOLD, YELLOW
 #else
-        0x36CD00, // Light green
-        0x06FD00, // Pure green
-        0x06CD00, // Bright green
-        0x8CCC00, // Green-Yellowish
-        0xACEC00, // Yellowish-Green
-        0x45DB06, // Teal green
-        0x29BD06  // Seafoam green
+        0x76CD20, // Light green
+        0x56FD20, // Pure green
+        0x66CD20, // Bright green
+        0x8CCC20, // Green-Yellowish
+        0xACEC20, // Yellowish-Green
+        0x85DB26, // Teal green
+        0x59BD26  // Seafoam green
 #endif
     };
 

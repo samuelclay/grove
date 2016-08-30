@@ -102,11 +102,17 @@ void updateLEDs() {
                     ledCloseColorG,
                     ledCloseColorB
                 );
-            } else {
+            } else if (overallState == STATE_OPEN) {
                 setOnboardLEDs(
                     ledOpenColorR,
                     ledOpenColorG,
                     ledOpenColorB
+                );
+            } else if (overallState == STATE_PROX) {
+                setOnboardLEDs(
+                    ledProxColorR,
+                    ledProxColorG,
+                    ledProxColorB
                 );
             }
         }
