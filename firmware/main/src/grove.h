@@ -65,7 +65,7 @@ const unsigned long REST_DRIP_TRIP_MS = 20000;
 const unsigned long REST_DRIP_TRIP_MS = 60000;
 #endif
 const unsigned long BREATH_TRIP_MS = 20000;
-const unsigned long BREATH_RISE_MS = 5750;
+const unsigned long BREATH_RISE_MS = 2750;
 
 uint32_t dripCount = 0;
 uint32_t breathCount = 0;

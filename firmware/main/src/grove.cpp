@@ -409,9 +409,9 @@ void drawBreath(int b, int breathStart) {
         furthestBreathPosition = breathPosition[b];
     }
     
-    if (currentLed > ledsPerStrip) {
+    if (currentLed > ledsPerStrip - 20) {
         if (breathState == STATE_RESTING) {
-            breathBoostStart = millis() - 300;
+            breathBoostStart = millis() - 200;
             breathFallingStart = breathBoostStart + BREATH_RISE_MS;
             breathState = STATE_RISING;
         } else if (breathState == STATE_FALLING) {
