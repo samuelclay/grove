@@ -464,6 +464,7 @@ void updatePIR(int p) {
 
     int value = digitalRead(p == 0 ? PIR1_PIN : PIR2_PIN);
     if (p == 0) value = !value; // Handle one active LOW and one active HIGH PIR sensor
+    if (p == 0) value = 0;
 #ifdef FAKE_PIR
     value = true;
 #endif

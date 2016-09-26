@@ -4,7 +4,7 @@
 #include <QuadraticEase.h>
 #include <SineEase.h>
 
-// #define CAMPLIGHTS
+#define CAMPLIGHTS
 // #define RANDOMBREATHS
 // #define FAKE_PIR
 
